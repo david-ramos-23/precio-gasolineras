@@ -21,6 +21,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const stations = rows
     .map(r => ({
       ...r,
+      price: r.currentPrice,
       distanceKm: haversineKm(lat, lng, r.lat, r.lng),
       priceDelta: r.currentPrice !== null && r.prevPrice !== null ? r.currentPrice - r.prevPrice : null,
     }))

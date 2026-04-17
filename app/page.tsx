@@ -1,6 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback } from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
@@ -15,6 +16,7 @@ export default function Home() {
   const [stations, setStations] = useState<StationWithPrice[]>([]);
   const [selected, setSelected] = useState<StationWithPrice | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showList, setShowList] = useState(false);
 
@@ -32,12 +34,13 @@ export default function Home() {
   }, []);
 
   const fetchStations = useCallback(async () => {
-    if (!userLocation) return;
-    const [lat, lng] = userLocation;
+    const loc = mapCenter ?? userLocation;
+    if (!loc) return;
+    const [lat, lng] = loc;
     const res = await fetch(`/api/stations?lat=${lat}&lng=${lng}&radius=${radius}&fuel=${fuel}`);
     const data = await res.json();
     setStations(data);
-  }, [userLocation, radius, fuel]);
+  }, [mapCenter, userLocation, radius, fuel]);
 
   useEffect(() => { fetchStations(); }, [fetchStations]);
 
@@ -53,46 +56,74 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-950 text-white">
+    <div className="relative h-screen w-screen overflow-hidden bg-slate-950">
+      {/* Full-screen map */}
+      <div className="absolute inset-0">
+        <MapView
+          stations={stations}
+          selectedStation={selected}
+          onSelectStation={s => { setSelected(s); setShowList(false); }}
+          userLocation={userLocation}
+          onCenterChange={setMapCenter}
+        />
+      </div>
+
+      {/* Floating TopBar */}
       <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} view={view} onViewChange={setView} />
 
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Map */}
-        <div className={`${view === 'split' ? 'w-1/2' : 'flex-1'} relative`}>
-          <MapView
-            stations={stations}
-            selectedStation={selected}
-            onSelectStation={s => { setSelected(s); setShowList(false); }}
-            userLocation={userLocation}
-          />
-          <button
-            onClick={() => setShowList(v => !v)}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-4 py-2 rounded-full shadow-lg z-[1000] md:hidden"
-          >
-            {showList ? 'Ver mapa' : `Ver lista (${stations.length})`}
-          </button>
+      {/* Desktop right panel */}
+      {view === 'split' && (
+        <div className="hidden md:flex absolute right-0 top-0 bottom-0 w-80 flex-col bg-slate-950/97 backdrop-blur-md border-l border-slate-800/60 z-[500]">
+          <StationList stations={stations} selectedId={selected?.id ?? null} onSelect={s => setSelected(s)} fuel={fuel} />
         </div>
+      )}
 
-        {/* List panel */}
-        {(view === 'split' || showList) && (
-          <div className={`${view === 'split' ? 'w-1/2' : 'absolute inset-x-0 bottom-0 top-16 z-[999]'} bg-gray-950 p-3 overflow-y-auto`}>
-            <StationList stations={stations} selectedId={selected?.id ?? null} onSelect={s => { setSelected(s); setShowList(false); }} fuel={fuel} />
+      {/* Desktop detail panel */}
+      {selected && (
+        <div className={`hidden md:flex absolute top-0 bottom-0 w-80 flex-col z-[600] ${view === 'split' ? 'right-80' : 'right-0'}`}>
+          <StationDetail
+            station={selected}
+            activeFuel={fuel}
+            onClose={() => setSelected(null)}
+            isFavorite={favorites.includes(selected.id)}
+            onToggleFavorite={() => toggleFavorite(selected.id)}
+          />
+        </div>
+      )}
+
+      {/* Mobile bottom sheet */}
+      {showList && (
+        <div className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-slate-950/98 backdrop-blur-lg rounded-t-2xl border-t border-slate-800/60 shadow-2xl"
+          style={{ height: selected ? '100%' : '65%' }}>
+          <div className="flex justify-center pt-2 pb-1">
+            <div className="w-8 h-1 bg-slate-700 rounded-full" />
           </div>
-        )}
-
-        {/* Detail panel */}
-        {selected && (
-          <div className={`${view === 'split' ? 'hidden' : 'absolute right-0 top-0 bottom-0 w-80 z-[1000]'} bg-gray-900 shadow-2xl`}>
+          {selected ? (
             <StationDetail
               station={selected}
               activeFuel={fuel}
-              onClose={() => setSelected(null)}
+              onClose={() => { setSelected(null); }}
               isFavorite={favorites.includes(selected.id)}
               onToggleFavorite={() => toggleFavorite(selected.id)}
             />
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="flex flex-col h-full pb-20">
+              <StationList stations={stations} selectedId={null} onSelect={s => { setSelected(s); }} fuel={fuel} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mobile FAB */}
+      <button
+        onClick={() => setShowList(v => !v)}
+        className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 bg-slate-900/95 backdrop-blur-md border border-slate-700/60 text-slate-100 text-sm font-medium px-5 py-2.5 rounded-full shadow-2xl cursor-pointer hover:bg-slate-800 transition-colors"
+      >
+        {showList
+          ? <><ChevronDown className="w-4 h-4 text-slate-400" /> Cerrar</>
+          : <><ChevronUp className="w-4 h-4 text-green-400" /> {stations.length} gasolineras</>
+        }
+      </button>
     </div>
   );
 }

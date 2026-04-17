@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-
 export interface InsightInput {
   avgG95: number | null;
   avgG95Prev: number | null;
@@ -40,13 +38,19 @@ Sé directo y útil. No incluyas saludos ni despedidas formales.`;
 }
 
 export async function generateInsight(input: InsightInput): Promise<string> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const msg = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 400,
-    messages: [{ role: 'user', content: buildInsightPrompt(input) }],
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'anthropic/claude-haiku-4-5',
+      max_tokens: 400,
+      messages: [{ role: 'user', content: buildInsightPrompt(input) }],
+    }),
   });
-  const content = msg.content[0];
-  if (content.type !== 'text') throw new Error('Unexpected response type from Claude');
-  return content.text;
+  if (!res.ok) throw new Error(`OpenRouter error: ${res.status}`);
+  const data = await res.json();
+  return data.choices[0].message.content as string;
 }

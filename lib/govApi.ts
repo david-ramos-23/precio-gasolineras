@@ -23,7 +23,7 @@ export function parseGovResponse(data: any): {
     if (!id) continue;
 
     const lat = parseSpanishFloat(item['Latitud']);
-    const lng = parseSpanishFloat(item['Longitud']);
+    const lng = parseSpanishFloat(item['Longitud (WGS84)']);
     if (lat === null || lng === null) continue;
 
     stations.push({

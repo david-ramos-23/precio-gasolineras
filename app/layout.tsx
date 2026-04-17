@@ -1,34 +1,29 @@
 import 'leaflet/dist/leaflet.css';
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Fira_Sans, Fira_Code } from 'next/font/google';
+import './globals.css';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const firaSans = Fira_Sans({
+  weight: ['300', '400', '500', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-fira-sans',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const firaCode = Fira_Code({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-fira-code',
 });
 
 export const metadata: Metadata = {
-  title: 'Precio Gasolineras',
-  description: 'Precios de combustible en tiempo real',
+  title: 'Gasolineras',
+  description: 'Precios de combustible en tiempo real en España',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="bg-gray-950 text-white antialiased">{children}</body>
+    <html lang="es" className={`${firaSans.variable} ${firaCode.variable} h-full`}>
+      <body className="h-full antialiased overflow-hidden">{children}</body>
     </html>
   );
 }

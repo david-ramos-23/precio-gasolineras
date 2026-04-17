@@ -1,6 +1,6 @@
-// components/StationDetail.tsx
 'use client';
 import { useState, useEffect } from 'react';
+import { X, Star, MapPin, Navigation } from 'lucide-react';
 import PriceChart from './PriceChart';
 import type { StationWithPrice } from '@/lib/types';
 
@@ -15,61 +15,94 @@ interface Props {
 export default function StationDetail({ station, activeFuel, onClose, isFavorite, onToggleFavorite }: Props) {
   const [history, setHistory] = useState<Array<{ price: number; capturedAt: string }>>([]);
   const [days, setDays] = useState(30);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     setHistory([]);
     fetch(`/api/stations/${station.id}/history?fuel=${activeFuel}&days=${days}`)
       .then(r => r.json())
-      .then(setHistory)
-      .catch(console.error);
+      .then(data => { setHistory(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, [station.id, activeFuel, days]);
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 flex flex-col gap-3 h-full overflow-y-auto">
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-white font-semibold text-base">{station.name}</h2>
-          <p className="text-gray-400 text-xs mt-0.5">{station.address}</p>
-          <p className="text-gray-500 text-xs">{station.municipality}, {station.province}</p>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={onToggleFavorite} className="text-lg" title="Favorita">
-            {isFavorite ? '⭐' : '☆'}
-          </button>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">×</button>
+    <div className="flex flex-col h-full bg-slate-950 border-l border-slate-800/60">
+      {/* Header */}
+      <div className="px-4 py-4 border-b border-slate-800/60 shrink-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-sm font-semibold text-slate-100 truncate">{station.name}</h2>
+            <div className="flex items-center gap-1 mt-1">
+              <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
+              <p className="text-xs text-slate-500 truncate">{station.address}</p>
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5">{station.municipality}, {station.province}</p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={onToggleFavorite}
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isFavorite ? 'text-yellow-400' : 'text-slate-600 hover:text-slate-300'}`}
+              title="Favorita"
+            >
+              <Star className="w-4 h-4" fill={isFavorite ? 'currentColor' : 'none'} />
+            </button>
+            <button onClick={onClose} className="p-1.5 rounded-lg text-slate-600 hover:text-slate-200 transition-colors cursor-pointer">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex-1 bg-gray-800 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-400 mb-1">Gasolina 95</p>
-          <p className="text-xl font-bold text-green-400">{station.price?.toFixed(3) ?? '—'}€</p>
-        </div>
-        <div className="flex-1 bg-gray-800 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-400 mb-1">Gasóleo A</p>
-          <p className="text-xl font-bold text-yellow-400">—</p>
+      {/* Price card */}
+      <div className="px-4 py-4 border-b border-slate-800/60 shrink-0">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-slate-500 mb-1">{activeFuel === 'g95' ? 'Gasolina 95 E5' : 'Gasóleo A'}</p>
+            <span className="text-3xl font-bold text-green-400 tabular-nums" style={{ fontFamily: 'var(--font-fira-code)' }}>
+              {station.price?.toFixed(3) ?? '—'}
+            </span>
+            <span className="text-lg text-green-400/70 ml-1">€</span>
+          </div>
+          {station.distanceKm != null && (
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-1 text-slate-400">
+                <Navigation className="w-3.5 h-3.5" />
+                <span className="text-sm tabular-nums" style={{ fontFamily: 'var(--font-fira-code)' }}>
+                  {station.distanceKm.toFixed(1)} km
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Histórico</p>
+      {/* Chart */}
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Historial</p>
           <div className="flex gap-1">
             {[7, 30, 90].map(d => (
               <button
                 key={d}
                 onClick={() => setDays(d)}
-                className={`text-xs px-2 py-0.5 rounded ${days === d ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                className={`text-xs px-2.5 py-1 rounded-lg transition-all duration-150 cursor-pointer ${
+                  days === d ? 'bg-green-500/20 text-green-400 font-medium' : 'text-slate-500 hover:text-slate-300'
+                }`}
               >
                 {d}d
               </button>
             ))}
           </div>
         </div>
-        <PriceChart data={history} fuel={activeFuel} />
+        {loading ? (
+          <div className="h-24 flex items-center justify-center">
+            <div className="w-4 h-4 border-2 border-green-500/30 border-t-green-500 rounded-full animate-spin" />
+          </div>
+        ) : (
+          <PriceChart data={history} fuel={activeFuel} />
+        )}
       </div>
-
-      <p className="text-xs text-gray-500">{station.distanceKm.toFixed(1)} km de distancia</p>
     </div>
   );
 }
