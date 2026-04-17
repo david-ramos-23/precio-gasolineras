@@ -67,7 +67,7 @@ export default function Home() {
         <MapView
           stations={stations}
           selectedStation={selected}
-          onSelectStation={s => { setSelected(s); setShowList(false); }}
+          onSelectStation={s => { setSelected(s); setShowList(true); }}
           userLocation={userLocation}
           onCenterChange={setMapCenter}
           flyToCenter={flyToCenter}
@@ -88,7 +88,7 @@ export default function Home() {
 
       {/* StationDetail — floating card bottom-right (desktop only) */}
       {selected && (
-        <div className="absolute bottom-4 right-16 z-[1000] w-80 max-h-[65vh] hidden md:flex flex-col rounded-2xl bg-[var(--panel)] border border-[var(--panel-border)] shadow-xl backdrop-blur-md overflow-y-auto">
+        <div className="absolute bottom-4 right-16 z-[1000] w-80 max-h-[65vh] hidden md:flex flex-col rounded-2xl bg-[var(--panel)] border border-[var(--panel-border)] shadow-xl backdrop-blur-md overflow-hidden">
           <StationDetail
             station={selected}
             activeFuel={fuel}

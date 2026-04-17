@@ -8,8 +8,6 @@ interface Props {
   onRadiusChange: (r: number) => void;
   fuel: 'g95' | 'diesel';
   onFuelChange: (f: 'g95' | 'diesel') => void;
-  view?: 'map' | 'split';
-  onViewChange?: (v: 'map' | 'split') => void;
 }
 
 export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange }: Props) {
