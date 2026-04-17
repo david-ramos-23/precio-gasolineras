@@ -1,7 +1,7 @@
 // components/MapView.tsx
 'use client';
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { fixLeafletIcons } from '@/lib/leafletIcons';
 import type { StationWithPrice } from '@/lib/types';
 
@@ -13,6 +13,16 @@ function priceColor(price: number, min: number, max: number): string {
   return '#ef4444';
 }
 
+function MapEventHandler({ onCenterChange }: { onCenterChange: (center: [number, number]) => void }) {
+  useMapEvents({
+    moveend(e) {
+      const c = e.target.getCenter();
+      onCenterChange([c.lat, c.lng]);
+    },
+  });
+  return null;
+}
+
 function FlyTo({ station }: { station: StationWithPrice | null }) {
   const map = useMap();
   useEffect(() => {
@@ -21,14 +31,23 @@ function FlyTo({ station }: { station: StationWithPrice | null }) {
   return null;
 }
 
+function FlyToUser({ location }: { location: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (location) map.flyTo(location, 13, { duration: 1 });
+  }, [location, map]);
+  return null;
+}
+
 interface Props {
   stations: StationWithPrice[];
   selectedStation: StationWithPrice | null;
   onSelectStation: (s: StationWithPrice) => void;
   userLocation: [number, number] | null;
+  onCenterChange: (center: [number, number]) => void;
 }
 
-export default function MapView({ stations, selectedStation, onSelectStation, userLocation }: Props) {
+export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange }: Props) {
   useEffect(() => { fixLeafletIcons(); }, []);
 
   const prices = stations.map(s => s.price).filter((p): p is number => p !== null);
@@ -40,10 +59,12 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/">OSM</a>'
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
       <FlyTo station={selectedStation} />
+      <FlyToUser location={userLocation} />
+      <MapEventHandler onCenterChange={onCenterChange} />
       {stations.map(s => (
         <CircleMarker
           key={s.id}
