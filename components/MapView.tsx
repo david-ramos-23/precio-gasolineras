@@ -1,7 +1,7 @@
 // components/MapView.tsx
 'use client';
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
 import { useTheme } from 'next-themes';
 import { fixLeafletIcons } from '@/lib/leafletIcons';
 import type { StationWithPrice } from '@/lib/types';
@@ -63,7 +63,8 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
   const center: [number, number] = userLocation ?? [40.4168, -3.7038];
 
   return (
-    <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
+    <MapContainer center={center} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
+      <ZoomControl position="topright" />
       <TileLayer
         key={tileUrl}
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CartoDB</a>'
