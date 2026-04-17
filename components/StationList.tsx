@@ -1,4 +1,6 @@
 'use client';
+import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import type { StationWithPrice } from '@/lib/types';
 
 function DeltaBadge({ delta }: { delta: number | null }) {
@@ -20,57 +22,72 @@ interface Props {
 }
 
 export default function StationList({ stations, selectedId, onSelect, fuel }: Props) {
-  if (stations.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-48 gap-2">
-        <p className="text-sm text-slate-500">Sin gasolineras en esta zona</p>
-        <p className="text-xs text-slate-600">Aumenta el radio o mueve el mapa</p>
-      </div>
-    );
-  }
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="px-4 py-3 border-b border-slate-800/60 shrink-0">
-        <p className="text-xs text-slate-500" style={{ fontFamily: 'var(--font-fira-code)' }}>
-          {stations.length} estaciones · {fuel === 'g95' ? 'Gasolina 95' : 'Gasóleo A'}
-        </p>
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-2 space-y-1">
-          {stations.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => onSelect(s)}
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 cursor-pointer ${
-                selectedId === s.id
-                  ? 'bg-green-500/10 border border-green-500/25'
-                  : 'hover:bg-slate-800/50 border border-transparent'
-              }`}
-            >
-              <span className="text-xs text-slate-600 w-5 text-right shrink-0 tabular-nums"
-                style={{ fontFamily: 'var(--font-fira-code)' }}>{i + 1}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-100 truncate">{s.name}</p>
-                {s.distanceKm != null && (
-                  <p className="text-xs text-slate-600 tabular-nums" style={{ fontFamily: 'var(--font-fira-code)' }}>
-                    {s.distanceKm.toFixed(1)} km
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-col items-end gap-1 shrink-0">
-                {s.price != null ? (
-                  <span className={`text-sm font-bold tabular-nums ${i === 0 ? 'text-green-400' : i <= 2 ? 'text-yellow-400' : 'text-slate-200'}`}
-                    style={{ fontFamily: 'var(--font-fira-code)' }}>
-                    {s.price.toFixed(3)}€
-                  </span>
-                ) : <span className="text-slate-500 text-sm">—</span>}
-                <DeltaBadge delta={s.priceDelta ?? null} />
-              </div>
-            </button>
-          ))}
+    <div className="w-72 flex flex-col rounded-2xl bg-[var(--panel)] border border-[var(--panel-border)] shadow-xl backdrop-blur-md overflow-hidden">
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-3 py-2 border-b border-[var(--panel-border)] cursor-pointer select-none"
+        onClick={() => setCollapsed(c => !c)}
+      >
+        <span className="text-sm font-semibold text-[var(--foreground)]">Gasolineras cercanas</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[var(--foreground)]/40" style={{ fontFamily: 'var(--font-fira-code)' }}>
+            {stations.length} · {fuel === 'g95' ? 'G95' : 'Gasoil'}
+          </span>
+          <ChevronDown
+            size={16}
+            className={`text-[var(--foreground)]/50 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`}
+          />
         </div>
       </div>
+
+      {/* Scrollable list body */}
+      {!collapsed && (
+        <div className="overflow-y-auto max-h-[55vh]">
+          {stations.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-32 gap-2 px-4">
+              <p className="text-sm text-[var(--foreground)]/40 text-center">Sin gasolineras en esta zona</p>
+              <p className="text-xs text-[var(--foreground)]/25 text-center">Aumenta el radio o mueve el mapa</p>
+            </div>
+          ) : (
+            <div className="p-2 space-y-1">
+              {stations.map((s, i) => (
+                <button
+                  key={s.id}
+                  onClick={() => onSelect(s)}
+                  className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 cursor-pointer ${
+                    selectedId === s.id
+                      ? 'bg-green-500/10 border border-green-500/25'
+                      : 'hover:bg-[var(--foreground)]/5 border border-transparent'
+                  }`}
+                >
+                  <span className="text-xs text-[var(--foreground)]/30 w-5 text-right shrink-0 tabular-nums"
+                    style={{ fontFamily: 'var(--font-fira-code)' }}>{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[var(--foreground)] truncate">{s.name}</p>
+                    {s.distanceKm != null && (
+                      <p className="text-xs text-[var(--foreground)]/40 tabular-nums" style={{ fontFamily: 'var(--font-fira-code)' }}>
+                        {s.distanceKm.toFixed(1)} km
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    {s.price != null ? (
+                      <span className={`text-sm font-bold tabular-nums ${i === 0 ? 'text-green-400' : i <= 2 ? 'text-yellow-400' : 'text-[var(--foreground)]'}`}
+                        style={{ fontFamily: 'var(--font-fira-code)' }}>
+                        {s.price.toFixed(3)}€
+                      </span>
+                    ) : <span className="text-[var(--foreground)]/30 text-sm">—</span>}
+                    <DeltaBadge delta={s.priceDelta ?? null} />
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

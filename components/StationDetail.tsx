@@ -27,7 +27,7 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
   }, [station.id, activeFuel, days]);
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 border-l border-slate-800/60">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <div className="px-4 py-4 border-b border-slate-800/60 shrink-0">
         <div className="flex items-start justify-between gap-2">

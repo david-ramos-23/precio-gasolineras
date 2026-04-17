@@ -13,7 +13,6 @@ const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 export default function Home() {
   const [radius, setRadius] = useState(10);
   const [fuel, setFuel] = useState<'g95' | 'diesel'>('g95');
-  const [view, setView] = useState<'map' | 'split'>('map');
   const [stations, setStations] = useState<StationWithPrice[]>([]);
   const [selected, setSelected] = useState<StationWithPrice | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -74,21 +73,22 @@ export default function Home() {
           flyToCenter={flyToCenter}
         />
       </div>
+
       <RecenterButton onClick={handleRecenter} />
 
-      {/* Floating TopBar */}
-      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} view={view} onViewChange={setView} />
+      {/* TopBar — centered pill at top */}
+      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} />
 
-      {/* Desktop right panel */}
-      {view === 'split' && (
-        <div className="hidden md:flex absolute right-0 top-0 bottom-0 w-80 flex-col bg-slate-950/97 backdrop-blur-md border-l border-slate-800/60 z-[500]">
+      {/* StationList — floating card bottom-left (desktop only) */}
+      {stations.length > 0 && (
+        <div className="absolute bottom-4 left-4 z-[1000] hidden md:block">
           <StationList stations={stations} selectedId={selected?.id ?? null} onSelect={s => setSelected(s)} fuel={fuel} />
         </div>
       )}
 
-      {/* Desktop detail panel */}
+      {/* StationDetail — floating card bottom-right (desktop only) */}
       {selected && (
-        <div className={`hidden md:flex absolute top-0 bottom-0 w-80 flex-col z-[600] ${view === 'split' ? 'right-80' : 'right-0'}`}>
+        <div className="absolute bottom-4 right-16 z-[1000] w-80 max-h-[65vh] hidden md:flex flex-col rounded-2xl bg-[var(--panel)] border border-[var(--panel-border)] shadow-xl backdrop-blur-md overflow-y-auto">
           <StationDetail
             station={selected}
             activeFuel={fuel}
