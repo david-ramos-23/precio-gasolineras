@@ -117,6 +117,43 @@ export async function removeFavorite(stationId: string): Promise<void> {
   await sql`DELETE FROM favorites WHERE station_id = ${stationId}`;
 }
 
+export async function getPreviousAverages(): Promise<{ avgG95Prev: number | null; avgDieselPrev: number | null }> {
+  const rows = await sql`
+    WITH cycle_times AS (
+      SELECT DISTINCT DATE_TRUNC('hour', captured_at) AS hr
+      FROM price_snapshots
+      ORDER BY hr DESC
+      LIMIT 2
+    ),
+    prev_cycle AS (
+      SELECT hr FROM cycle_times OFFSET 1 LIMIT 1
+    )
+    SELECT
+      AVG(CASE WHEN fuel_type = 'g95'    THEN price END) AS avg_g95,
+      AVG(CASE WHEN fuel_type = 'diesel' THEN price END) AS avg_diesel
+    FROM price_snapshots ps
+    WHERE DATE_TRUNC('hour', ps.captured_at) = (SELECT hr FROM prev_cycle)
+  `;
+  const row = rows[0];
+  return {
+    avgG95Prev: row?.avg_g95 != null ? Number(row.avg_g95) : null,
+    avgDieselPrev: row?.avg_diesel != null ? Number(row.avg_diesel) : null,
+  };
+}
+
+export function mean(nums: number[]): number | null {
+  const valid = nums.filter(n => Number.isFinite(n));
+  if (valid.length === 0) return null;
+  return valid.reduce((a, b) => a + b, 0) / valid.length;
+}
+
+export function mode(arr: string[]): string | null {
+  if (arr.length === 0) return null;
+  const freq: Record<string, number> = {};
+  for (const s of arr) freq[s] = (freq[s] ?? 0) + 1;
+  return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+}
+
 export async function getFavoritesWithCurrentPrice(fuel: FuelType): Promise<
   Array<{ stationId: string; label: string; name: string; price: number | null; prevPrice: number | null }>
 > {

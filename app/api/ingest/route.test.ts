@@ -3,10 +3,15 @@ jest.mock('@/lib/db', () => ({
   bulkUpsertStations: jest.fn(),
   bulkInsertSnapshots: jest.fn(),
   getFavoritesWithCurrentPrice: jest.fn(),
+  getPreviousAverages: jest.fn(),
+  mean: jest.fn(),
+  mode: jest.fn(),
 }));
 jest.mock('@/lib/govApi', () => ({ fetchGovData: jest.fn() }));
 jest.mock('@/lib/insights', () => ({ generateInsight: jest.fn() }));
 jest.mock('@/lib/telegram', () => ({ sendTelegramMessage: jest.fn() }));
+jest.mock('@/lib/config', () => ({ getHomeConfig: jest.fn().mockReturnValue(null) }));
+jest.mock('@/lib/geo', () => ({ haversineKm: jest.fn() }));
 
 import { verifyIngestSecret } from './route';
 

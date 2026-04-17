@@ -1,9 +1,11 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, mean, mode } from '@/lib/db';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
+import { getHomeConfig } from '@/lib/config';
+import { haversineKm } from '@/lib/geo';
 import type { FuelType } from '@/lib/types';
 
 export function verifyIngestSecret(header: string): boolean {
@@ -27,17 +29,30 @@ async function runIngest(isSummary: boolean): Promise<NextResponse> {
       await bulkInsertSnapshots(snapshots.slice(i, i + CHUNK_SIZE));
     }
 
-    const g95Prices = prices.filter(p => p.fuel === 'g95').map(p => p.price);
-    const dieselPrices = prices.filter(p => p.fuel === 'diesel').map(p => p.price);
-    const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    const home = getHomeConfig();
+    const scopedStations = home
+      ? stations.filter(s =>
+          s.lat != null && s.lng != null &&
+          haversineKm(home.lat, home.lng, s.lat, s.lng) <= home.radiusKm
+        )
+      : stations;
+    const scopedIds = new Set(scopedStations.map(s => s.id));
+
+    const scopedG95Prices = prices.filter(p => p.fuel === 'g95' && scopedIds.has(p.stationId)).map(p => p.price);
+    const scopedDieselPrices = prices.filter(p => p.fuel === 'diesel' && scopedIds.has(p.stationId)).map(p => p.price);
+
+    const province = mode(scopedStations.map(s => s.province).filter((p): p is string => Boolean(p))) ?? 'España';
+    const { avgG95Prev, avgDieselPrev } = await getPreviousAverages();
+    const avgG95Now = mean(scopedG95Prices);
+    const avgDieselNow = mean(scopedDieselPrices);
 
     const favorites = await getFavoritesWithCurrentPrice('g95');
     const favoriteChanges = favorites.map(f => ({ label: f.label, price: f.price ?? 0, prevPrice: f.prevPrice }));
 
     const insightText = await generateInsight({
-      avgG95: avg(g95Prices), avgG95Prev: null,
-      avgDiesel: avg(dieselPrices), avgDieselPrev: null,
-      province: 'España', favoriteChanges, isSummary,
+      avgG95: avgG95Now, avgG95Prev,
+      avgDiesel: avgDieselNow, avgDieselPrev,
+      province, favoriteChanges, isSummary,
     });
 
     await sendTelegramMessage(insightText);
