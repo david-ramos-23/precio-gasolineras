@@ -16,6 +16,7 @@ export interface StationWithPrice extends Station {
   price: number | null;
   priceDelta: number | null; // change vs previous snapshot
   distanceKm: number;
+  updatedAt: string | null;
 }
 
 export interface PriceSnapshot {

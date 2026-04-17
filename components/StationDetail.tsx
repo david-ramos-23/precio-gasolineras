@@ -38,6 +38,15 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
               <p className="text-xs text-[var(--foreground)]/50 truncate">{station.address}</p>
             </div>
             <p className="text-xs text-[var(--foreground)]/40 mt-0.5">{station.municipality}, {station.province}</p>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}&travelmode=driving`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] text-white text-xs px-3 py-1.5 hover:brightness-110 transition-all font-medium mt-2"
+            >
+              <Navigation size={13} />
+              Cómo llegar
+            </a>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button
@@ -75,6 +84,14 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
             </div>
           )}
         </div>
+        {station.updatedAt && (
+          <p className="text-xs text-[var(--foreground)]/50 mt-2">
+            Actualizado: {new Date(station.updatedAt).toLocaleString("es-ES", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
+          </p>
+        )}
       </div>
 
       {/* Chart */}

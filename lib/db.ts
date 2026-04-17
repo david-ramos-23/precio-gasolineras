@@ -67,10 +67,11 @@ export async function getStationsInBounds(
     SELECT
       s.id, s.name, s.brand, s.lat, s.lng, s.address, s.province, s.municipality,
       latest.price::float AS current_price,
+      latest.captured_at AS updated_at,
       prev.price::float AS prev_price
     FROM stations s
     LEFT JOIN LATERAL (
-      SELECT price FROM price_snapshots
+      SELECT price, captured_at FROM price_snapshots
       WHERE station_id = s.id AND fuel_type = ${fuel}
       ORDER BY captured_at DESC LIMIT 1
     ) latest ON true
@@ -87,6 +88,7 @@ export async function getStationsInBounds(
     lat: r.lat, lng: r.lng, address: r.address,
     province: r.province, municipality: r.municipality,
     currentPrice: r.current_price, prevPrice: r.prev_price,
+    updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : null,
   }));
 }
 
