@@ -1,17 +1,27 @@
 @import "tailwindcss";
 
-:root {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --card: #0f172a;
-  --card-border: #1e293b;
-  --accent: #22c55e;
-  --muted: #64748b;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-fira-sans);
+  --font-mono: var(--font-fira-code);
+}
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --accent: #16a34a;
+  --panel: rgba(255, 255, 255, 0.92);
+  --panel-border: rgba(15, 23, 42, 0.08);
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --accent: #22c55e;
+  --panel: rgba(2, 6, 23, 0.85);
+  --panel-border: rgba(248, 250, 252, 0.08);
 }
 
 * { box-sizing: border-box; }
@@ -23,9 +33,8 @@ body {
   overscroll-behavior: contain;
 }
 
-/* Dark Leaflet */
-.leaflet-container { background: #020617; }
-.leaflet-tile-pane { filter: brightness(0.9); }
+.leaflet-container { background: var(--background); }
+.dark .leaflet-container { filter: brightness(0.9); }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 4px; }

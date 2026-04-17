@@ -1,6 +1,7 @@
 import 'leaflet/dist/leaflet.css';
 import type { Metadata } from 'next';
 import { Fira_Sans, Fira_Code } from 'next/font/google';
+import { ThemeProvider } from 'next-themes';
 import './globals.css';
 
 const firaSans = Fira_Sans({
@@ -23,7 +24,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${firaSans.variable} ${firaCode.variable} h-full`}>
-      <body className="h-full antialiased overflow-hidden">{children}</body>
+      <body className={`${firaSans.variable} ${firaCode.variable} h-full antialiased overflow-hidden`}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

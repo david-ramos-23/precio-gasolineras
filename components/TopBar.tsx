@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Fuel, ChevronDown, List, Map } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 
 interface Props {
   radius: number;
@@ -61,13 +62,16 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, vie
         )}
       </div>
 
-      <button
-        onClick={() => onViewChange(view === 'map' ? 'split' : 'map')}
-        className="pointer-events-auto hidden md:flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-xl px-3 py-2 shadow-2xl text-xs text-slate-400 hover:text-slate-100 transition-colors cursor-pointer ml-auto"
-      >
-        {view === 'map' ? <List className="w-4 h-4" /> : <Map className="w-4 h-4" />}
-        <span>{view === 'map' ? 'Lista' : 'Mapa'}</span>
-      </button>
+      <div className="ml-auto flex items-center gap-2">
+        <ThemeToggle />
+        <button
+          onClick={() => onViewChange(view === 'map' ? 'split' : 'map')}
+          className="pointer-events-auto hidden md:flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-xl px-3 py-2 shadow-2xl text-xs text-slate-400 hover:text-slate-100 transition-colors cursor-pointer"
+        >
+          {view === 'map' ? <List className="w-4 h-4" /> : <Map className="w-4 h-4" />}
+          <span>{view === 'map' ? 'Lista' : 'Mapa'}</span>
+        </button>
+      </div>
     </div>
   );
 }

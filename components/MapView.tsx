@@ -2,6 +2,7 @@
 'use client';
 import { useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { useTheme } from 'next-themes';
 import { fixLeafletIcons } from '@/lib/leafletIcons';
 import type { StationWithPrice } from '@/lib/types';
 
@@ -50,6 +51,11 @@ interface Props {
 export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange }: Props) {
   useEffect(() => { fixLeafletIcons(); }, []);
 
+  const { resolvedTheme } = useTheme();
+  const tileUrl = resolvedTheme === 'light'
+    ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+
   const prices = stations.map(s => s.price).filter((p): p is number => p !== null);
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
@@ -59,8 +65,9 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
       <TileLayer
-        attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        key={tileUrl}
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CartoDB</a>'
+        url={tileUrl}
       />
       <FlyTo station={selectedStation} />
       <FlyToUser location={userLocation} />
