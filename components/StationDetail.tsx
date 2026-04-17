@@ -87,7 +87,7 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
                 key={d}
                 onClick={() => setDays(d)}
                 className={`text-xs px-2.5 py-1 rounded-lg transition-all duration-150 cursor-pointer ${
-                  days === d ? 'bg-green-500/20 text-[var(--accent)] font-medium' : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
+                  days === d ? 'bg-[var(--accent)]/20 text-[var(--accent)] font-medium' : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
                 }`}
               >
                 {d}d
@@ -97,7 +97,7 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
         </div>
         {loading ? (
           <div className="h-24 flex items-center justify-center">
-            <div className="w-4 h-4 border-2 border-green-500/30 border-t-green-500 rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-[var(--accent)]/30 border-t-[var(--accent)] rounded-full animate-spin" />
           </div>
         ) : (
           <PriceChart data={history} fuel={activeFuel} />
