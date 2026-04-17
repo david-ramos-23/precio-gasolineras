@@ -1,7 +1,8 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, mean, mode } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages } from '@/lib/db';
+import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
 import { getHomeConfig } from '@/lib/config';
@@ -36,18 +37,21 @@ async function runIngest(isSummary: boolean): Promise<NextResponse> {
           haversineKm(home.lat, home.lng, s.lat, s.lng) <= home.radiusKm
         )
       : stations;
-    const scopedIds = new Set(scopedStations.map(s => s.id));
+    const scopedIds = scopedStations.map(s => s.id);
+    const scopedIdsSet = new Set(scopedIds);
 
-    const scopedG95Prices = prices.filter(p => p.fuel === 'g95' && scopedIds.has(p.stationId)).map(p => p.price);
-    const scopedDieselPrices = prices.filter(p => p.fuel === 'diesel' && scopedIds.has(p.stationId)).map(p => p.price);
+    const scopedG95Prices = prices.filter(p => p.fuel === 'g95' && scopedIdsSet.has(p.stationId)).map(p => p.price);
+    const scopedDieselPrices = prices.filter(p => p.fuel === 'diesel' && scopedIdsSet.has(p.stationId)).map(p => p.price);
 
     const province = mode(scopedStations.map(s => s.province).filter((p): p is string => Boolean(p))) ?? 'España';
-    const { avgG95Prev, avgDieselPrev } = await getPreviousAverages();
+    const { avgG95Prev, avgDieselPrev } = await getPreviousAverages(scopedIds);
     const avgG95Now = mean(scopedG95Prices);
     const avgDieselNow = mean(scopedDieselPrices);
 
     const favorites = await getFavoritesWithCurrentPrice('g95');
-    const favoriteChanges = favorites.map(f => ({ label: f.label, price: f.price ?? 0, prevPrice: f.prevPrice }));
+    const favoriteChanges = favorites
+      .filter(f => f.price != null)
+      .map(f => ({ label: f.label, price: f.price!, prevPrice: f.prevPrice }));
 
     const insightText = await generateInsight({
       avgG95: avgG95Now, avgG95Prev,
