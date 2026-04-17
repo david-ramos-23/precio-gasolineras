@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents, Zoo
 import { useTheme } from 'next-themes';
 import { fixLeafletIcons } from '@/lib/leafletIcons';
 import type { StationWithPrice } from '@/lib/types';
+import { UserLocationMarker } from '@/components/UserLocationMarker';
 
 function priceColor(price: number, min: number, max: number): string {
   if (max === min) return '#f59e0b';
@@ -40,15 +41,24 @@ function FlyToUser({ location }: { location: [number, number] | null }) {
   return null;
 }
 
+function MapController({ center }: { center: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) map.flyTo(center, map.getZoom());
+  }, [center, map]);
+  return null;
+}
+
 interface Props {
   stations: StationWithPrice[];
   selectedStation: StationWithPrice | null;
   onSelectStation: (s: StationWithPrice) => void;
   userLocation: [number, number] | null;
   onCenterChange: (center: [number, number]) => void;
+  flyToCenter?: [number, number] | null;
 }
 
-export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange }: Props) {
+export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, flyToCenter = null }: Props) {
   useEffect(() => { fixLeafletIcons(); }, []);
 
   const { resolvedTheme } = useTheme();
@@ -72,7 +82,9 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
       />
       <FlyTo station={selectedStation} />
       <FlyToUser location={userLocation} />
+      <MapController center={flyToCenter} />
       <MapEventHandler onCenterChange={onCenterChange} />
+      <UserLocationMarker position={userLocation} />
       {stations.map(s => (
         <CircleMarker
           key={s.id}

@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
+import { RecenterButton } from '@/components/RecenterButton';
 import type { StationWithPrice } from '@/lib/types';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -17,6 +18,7 @@ export default function Home() {
   const [selected, setSelected] = useState<StationWithPrice | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
+  const [flyToCenter, setFlyToCenter] = useState<[number, number] | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showList, setShowList] = useState(false);
 
@@ -44,6 +46,10 @@ export default function Home() {
 
   useEffect(() => { fetchStations(); }, [fetchStations]);
 
+  const handleRecenter = () => {
+    if (userLocation) setFlyToCenter([...userLocation]);
+  };
+
   const toggleFavorite = async (stationId: string) => {
     if (favorites.includes(stationId)) {
       await fetch('/api/favorites', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stationId }) });
@@ -65,8 +71,10 @@ export default function Home() {
           onSelectStation={s => { setSelected(s); setShowList(false); }}
           userLocation={userLocation}
           onCenterChange={setMapCenter}
+          flyToCenter={flyToCenter}
         />
       </div>
+      <RecenterButton onClick={handleRecenter} />
 
       {/* Floating TopBar */}
       <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} view={view} onViewChange={setView} />
