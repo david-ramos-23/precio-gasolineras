@@ -1,75 +1,38 @@
 # Deployment Guide
 
-## 1. Push to GitHub
+## Environment Variables
 
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/precio-gasolineras.git
-git push -u origin feat/core-app
-```
+### Database
+- **DATABASE_URL** — PostgreSQL connection string with SSL mode. Format: `postgresql://user:password@host/dbname?sslmode=require`
 
-## 2. Create Neon Postgres Database
+### AI (OpenRouter)
+- **OPENROUTER_API_KEY** — API key for OpenRouter (not Anthropic API directly). Format: `sk-or-v1-...`
 
-1. Go to [console.neon.tech](https://console.neon.tech) → New Project
-2. Copy the `DATABASE_URL` connection string
-3. Apply the schema:
+### Telegram
+- **TELEGRAM_BOT_TOKEN** — Bot token from Telegram BotFather. Format: `123456789:ABCDEF...`
+- **TELEGRAM_CHAT_ID** — Telegram chat ID where notifications are sent. Format: `-100...` for groups/channels
 
-```bash
-node -e "
-const { neon } = require('@neondatabase/serverless');
-const fs = require('fs');
-require('dotenv').config({ path: '.env.local' });
-const sql = neon(process.env.DATABASE_URL);
-sql(fs.readFileSync('db/schema.sql', 'utf8')).then(() => { console.log('Schema applied'); process.exit(0); }).catch(e => { console.error(e); process.exit(1); });
-"
-```
+### Cron Security
+- **INGEST_SECRET** — Token from cron-job.org POST requests to `/api/ingest`. Validate this in the ingest endpoint.
+- **CRON_SECRET** — Bearer token that validates GET requests to `/api/ingest?summary=1`. Checked in the `Authorization` header.
 
-## 3. Import to Vercel
+### Home Location Filtering
+These variables control notification filtering by proximity to user's home:
+- **HOME_LAT** — Latitude of the user's home area (e.g., `40.4168`)
+- **HOME_LNG** — Longitude of the user's home area (e.g., `-3.7038`)
+- **HOME_RADIUS_KM** — Radius in kilometers around home for filtering notifications (default: `30`)
 
-1. Go to [vercel.com](https://vercel.com) → Add New Project → import GitHub repo
-2. Framework: Next.js (auto-detected)
-3. Add environment variables:
+## Deployment
 
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | From Neon dashboard |
-| `INGEST_SECRET` | Run `openssl rand -hex 16` to generate |
-| `TELEGRAM_BOT_TOKEN` | From [@BotFather](https://t.me/BotFather) on Telegram |
-| `TELEGRAM_CHAT_ID` | Message your bot, then GET `https://api.telegram.org/bot<TOKEN>/getUpdates` — look for `chat.id` |
-| `ANTHROPIC_API_KEY` | From [console.anthropic.com](https://console.anthropic.com) |
+### Auto-Deploy
+Push to `feat/core-app` or `master` triggers Vercel auto-deploy via GitHub integration. No manual deployment step required.
 
-4. Deploy
+### Vercel Configuration
+- External cron-job.org fires `/api/ingest` every 6 hours
+- Do NOT use Vercel's `vercel.json` cron block (duplicate runs would occur)
+- All other Vercel config (headers, rewrites, serverless functions) is defined in `vercel.json`
 
-## 4. Run Initial Ingest
-
-```bash
-curl -X POST "https://YOUR-APP.vercel.app/api/ingest" \
-  -H "x-ingest-secret: YOUR_INGEST_SECRET"
-```
-
-Expected: `{"ok":true,"stationsProcessed":~11000,...}` (takes ~20-30s first run)
-
-## 5. Configure cron-job.org
-
-Sign up at [cron-job.org](https://cron-job.org) (free) and create two jobs:
-
-**Job 1 — Regular sync (every 6h):**
-- URL: `https://YOUR-APP.vercel.app/api/ingest`
-- Method: POST
-- Headers: `x-ingest-secret: YOUR_INGEST_SECRET`
-- Schedule: `0 */6 * * *`
-
-**Job 2 — Daily summary with Telegram notification (21:00 UTC):**
-- URL: `https://YOUR-APP.vercel.app/api/ingest?summary=1`
-- Method: POST
-- Headers: `x-ingest-secret: YOUR_INGEST_SECRET`
-- Schedule: `0 21 * * *`
-
-## 6. Local Development
-
-```bash
-cp .env.local.example .env.local
-# Fill in DATABASE_URL and other vars
-npm run dev
-```
-
-App runs at http://localhost:3000
+### Secrets Management
+1. Add all sensitive env vars to Vercel project settings (not in code or git)
+2. Never commit `.env.local` files
+3. Use `.env.example` as a template for contributors
