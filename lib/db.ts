@@ -62,7 +62,7 @@ export async function bulkInsertSnapshots(
 export async function getStationsInBounds(
   latMin: number, latMax: number, lngMin: number, lngMax: number,
   fuel: FuelType
-): Promise<Array<Station & { currentPrice: number | null; prevPrice: number | null }>> {
+): Promise<Array<Station & { currentPrice: number | null; prevPrice: number | null; updatedAt: string | null }>> {
   const rows = await sql`
     SELECT
       s.id, s.name, s.brand, s.lat, s.lng, s.address, s.province, s.municipality,

@@ -89,6 +89,7 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
             Actualizado: {new Date(station.updatedAt).toLocaleString("es-ES", {
               dateStyle: "short",
               timeStyle: "short",
+              timeZone: "Europe/Madrid",
             })}
           </p>
         )}
