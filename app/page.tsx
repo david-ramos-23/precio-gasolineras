@@ -1,11 +1,12 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
 import { RecenterButton } from '@/components/RecenterButton';
+import { PriceLegend } from '@/components/PriceLegend';
 import type { StationWithPrice } from '@/lib/types';
 import type { LatLngBounds } from 'leaflet';
 
@@ -23,17 +24,22 @@ export default function Home() {
   const [showList, setShowList] = useState(false);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
 
-  const visibleStations = bounds
-    ? stations.filter(s => bounds.contains({ lat: s.lat, lng: s.lng }))
-    : stations;
+  const visibleStations = useMemo(
+    () => bounds ? stations.filter(s => bounds.contains({ lat: s.lat, lng: s.lng })) : stations,
+    [bounds, stations]
+  );
 
-  const visiblePrices = visibleStations
-    .map(s => s.price)
-    .filter((p): p is number => p !== null);
+  const visiblePrices = useMemo(
+    () => visibleStations.map(s => s.price).filter((p): p is number => p !== null),
+    [visibleStations]
+  );
 
-  const priceRange = visiblePrices.length > 0
-    ? { min: Math.min(...visiblePrices), max: Math.max(...visiblePrices) }
-    : { min: 0, max: 0 };
+  const priceRange = useMemo(
+    () => visiblePrices.length > 0
+      ? { min: Math.min(...visiblePrices), max: Math.max(...visiblePrices) }
+      : { min: 0, max: 0 },
+    [visiblePrices]
+  );
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -94,6 +100,15 @@ export default function Home() {
 
       {/* TopBar — centered pill at top */}
       <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} />
+
+      {/* Price legend — centered below TopBar */}
+      {visiblePrices.length > 0 && (
+        <PriceLegend
+          count={visibleStations.length}
+          minPrice={priceRange.min}
+          maxPrice={priceRange.max}
+        />
+      )}
 
       {/* StationList — floating card bottom-left (desktop only) */}
       {stations.length > 0 && (
