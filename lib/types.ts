@@ -1,5 +1,5 @@
 // lib/types.ts
-export type FuelType = 'g95' | 'diesel';
+export type FuelType = 'g95' | 'diesel' | 'g98' | 'glp' | 'gnc';
 
 export interface Station {
   id: string;
@@ -10,6 +10,7 @@ export interface Station {
   address: string;
   province: string;
   municipality: string;
+  ventaRestringida: boolean;
 }
 
 export interface StationWithPrice extends Station {
