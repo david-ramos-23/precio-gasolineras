@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Fuel, ChevronDown } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthButton } from './AuthButton';
@@ -24,10 +24,20 @@ const FUEL_LABELS: Record<FuelType, string> = {
 const FUELS: FuelType[] = ['g95', 'diesel', 'g98', 'glp', 'gnc'];
 
 export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onLocationFound }: Props) {
+  const [showFuel, setShowFuel] = useState(false);
   const [showRadius, setShowRadius] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const fuelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onOutside(e: MouseEvent) {
+      if (fuelRef.current && !fuelRef.current.contains(e.target as Node)) setShowFuel(false);
+    }
+    if (showFuel) document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, [showFuel]);
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -53,23 +63,34 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
     <div className="absolute top-3 left-0 right-0 flex justify-center z-[1000] pointer-events-none px-4">
       <div className="flex items-center gap-2 rounded-full bg-[var(--panel)] border border-[var(--panel-border)] px-3 py-2 shadow-lg pointer-events-auto backdrop-blur-md">
         {/* Brand icon */}
-        <Fuel className="w-4 h-4 text-green-400 shrink-0 hidden sm:block" />
+        <Fuel className="w-4 h-4 text-green-400 shrink-0" />
 
-        {/* Fuel toggle — horizontally scrollable on mobile */}
-        <div className="flex items-center bg-black/10 rounded-full p-0.5 overflow-x-auto max-w-[180px] sm:max-w-none scrollbar-none shrink-0">
-          {FUELS.map(f => (
-            <button
-              key={f}
-              onClick={() => onFuelChange(f)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
-                fuel === f
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'text-[var(--foreground)]/60 hover:text-[var(--foreground)]'
-              }`}
-            >
-              {FUEL_LABELS[f]}
-            </button>
-          ))}
+        {/* Fuel dropdown */}
+        <div ref={fuelRef} className="relative shrink-0">
+          <button
+            onClick={() => setShowFuel(v => !v)}
+            className="flex items-center gap-1 bg-[var(--accent)] text-white text-xs font-semibold px-3 py-1 rounded-full cursor-pointer"
+          >
+            {FUEL_LABELS[fuel]}
+            <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showFuel ? 'rotate-180' : ''}`} />
+          </button>
+          {showFuel && (
+            <div className="absolute top-9 left-0 bg-[var(--panel)] border border-[var(--panel-border)] rounded-xl shadow-xl overflow-hidden min-w-[96px] z-10">
+              {FUELS.map(f => (
+                <button
+                  key={f}
+                  onClick={() => { onFuelChange(f); setShowFuel(false); }}
+                  className={`w-full text-left px-4 py-2 text-xs font-medium cursor-pointer transition-colors ${
+                    fuel === f
+                      ? 'bg-[var(--accent)] text-white'
+                      : 'text-[var(--foreground)]/70 hover:bg-[var(--panel-border)] hover:text-[var(--foreground)]'
+                  }`}
+                >
+                  {FUEL_LABELS[f]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Radius selector */}
