@@ -23,6 +23,17 @@ interface Props {
 
 export default function StationList({ stations, selectedId, onSelect, fuel }: Props) {
   const [collapsed, setCollapsed] = useState(false);
+  const [sortBy, setSortBy] = useState<'price' | 'distance'>('price');
+
+  const sorted = [...stations].sort((a, b) => {
+    if (sortBy === 'price') {
+      if (a.price === null && b.price === null) return 0;
+      if (a.price === null) return 1;
+      if (b.price === null) return -1;
+      return a.price - b.price;
+    }
+    return a.distanceKm - b.distanceKm;
+  });
 
   return (
     <div className="w-72 flex flex-col rounded-2xl bg-[var(--panel)] border border-[var(--panel-border)] shadow-xl backdrop-blur-md overflow-hidden">
@@ -33,9 +44,35 @@ export default function StationList({ stations, selectedId, onSelect, fuel }: Pr
       >
         <span className="text-sm font-semibold text-[var(--foreground)]">Gasolineras cercanas</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[var(--foreground)]/40" style={{ fontFamily: 'var(--font-fira-code)' }}>
-            {stations.length} · {fuel === 'g95' ? 'G95' : 'Gasoil'}
-          </span>
+          <div
+            className="flex items-center gap-1.5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex rounded-lg overflow-hidden border border-[var(--panel-border)] text-[10px] font-medium">
+              <button
+                type="button"
+                onClick={() => setSortBy('price')}
+                className={`px-2 py-1 transition-colors ${
+                  sortBy === 'price'
+                    ? 'bg-[var(--accent)] text-white'
+                    : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
+                }`}
+              >
+                Precio
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortBy('distance')}
+                className={`px-2 py-1 transition-colors ${
+                  sortBy === 'distance'
+                    ? 'bg-[var(--accent)] text-white'
+                    : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
+                }`}
+              >
+                Distancia
+              </button>
+            </div>
+          </div>
           <ChevronDown
             size={16}
             className={`text-[var(--foreground)]/50 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`}
@@ -53,7 +90,7 @@ export default function StationList({ stations, selectedId, onSelect, fuel }: Pr
             </div>
           ) : (
             <div className="p-2 space-y-1">
-              {stations.map((s, i) => (
+              {sorted.map((s, i) => (
                 <button
                   key={s.id}
                   onClick={() => onSelect(s)}
