@@ -66,7 +66,7 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
   }
 
   return (
-    <div className="absolute top-3 left-0 right-0 flex justify-center z-[1000] pointer-events-none px-4">
+    <div data-topbar="" className="absolute top-3 left-0 right-0 flex justify-center z-[1000] pointer-events-none px-4">
       <div className={`flex flex-col bg-[var(--panel)] border border-[var(--panel-border)] shadow-lg pointer-events-auto backdrop-blur-md w-full max-w-[360px] overflow-visible ${showLegend ? 'rounded-2xl' : 'rounded-full'}`}>
 
         {/* Row 1: controls */}

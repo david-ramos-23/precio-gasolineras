@@ -114,10 +114,12 @@ export default function Home() {
   // Drive height via DOM when selected/detailExpanded changes (avoids React re-render conflicts)
   useLayoutEffect(() => {
     if (!showList || !sheetRef.current || dragging.current) return;
-    const pct = selected ? (detailExpanded ? 100 : 58) : 65;
+    const pct = selected ? (detailExpanded ? getMaxPct() : 58) : 65;
     sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
     sheetRef.current.style.height = `${pct}%`;
     setPanelBottom(pct);
+    if (detailExpanded) rootRef.current?.classList.add('panel-expanded');
+    else rootRef.current?.classList.remove('panel-expanded');
   }, [selected?.id, detailExpanded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Touch drag state (refs = no re-renders during drag)
@@ -153,8 +155,14 @@ export default function Home() {
     dragMoved.current = false;
     dragStartY.current = e.touches[0].clientY;
     const h = sheetRef.current ? parseFloat(sheetRef.current.style.height) : NaN;
-    dragBaseH.current = isNaN(h) ? (selected ? (detailExpanded ? 100 : 58) : 65) : h;
+    dragBaseH.current = isNaN(h) ? (selected ? (detailExpanded ? getMaxPct() : 58) : 65) : h;
     rootRef.current?.style.setProperty('--zoom-td', '0s');
+  }
+
+  // Max height: sheet top aligns with TopBar top (top-3 = 12px)
+  function getMaxPct() {
+    if (typeof window === 'undefined') return 98;
+    return ((window.innerHeight - 12) / window.innerHeight) * 100;
   }
 
   function setPanelBottom(pct: number | null) {
@@ -174,6 +182,7 @@ export default function Home() {
         onComplete: () => {
           if (sheetRef.current) sheetRef.current.style.height = '';
           setPanelBottom(null);
+          rootRef.current?.classList.remove('panel-expanded');
           setShowList(false); setSelected(null); setOpenedFromList(false);
         }
       });
@@ -194,18 +203,23 @@ export default function Home() {
     dragging.current = false;
     rootRef.current?.style.removeProperty('--zoom-td');
     if (!dragMoved.current || !sheetRef.current) return;
-    sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+    // Check h BEFORE setting transition — prevents CSS transition race with closeSheet GSAP
     const h = parseFloat(sheetRef.current.style.height);
     if (h < 30) {
       closeSheet();
     } else if (h > 70) {
+      const maxPct = getMaxPct();
+      sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
       setDetailExpanded(true);
-      sheetRef.current.style.height = '100%';
-      setPanelBottom(100);
+      sheetRef.current.style.height = `${maxPct}%`;
+      setPanelBottom(maxPct);
+      rootRef.current?.classList.add('panel-expanded');
     } else {
+      sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
       setDetailExpanded(false);
       sheetRef.current.style.height = selected ? '58%' : '65%';
       setPanelBottom(selected ? 58 : 65);
+      rootRef.current?.classList.remove('panel-expanded');
     }
   }
 

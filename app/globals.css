@@ -71,3 +71,7 @@ input[type='range'] { accent-color: #22c55e; }
 .leaflet-control-attribution {
   display: none !important;
 }
+
+/* Bottom sheet fully expanded — hide TopBar */
+[data-topbar] { transition: opacity 0.25s ease; }
+.panel-expanded [data-topbar] { opacity: 0; pointer-events: none; }
