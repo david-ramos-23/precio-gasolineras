@@ -98,8 +98,10 @@ export default function Home() {
   // Set initial height synchronously before browser paint (prevents flash)
   useLayoutEffect(() => {
     if (showList && sheetRef.current) {
-      sheetRef.current.style.height = selected ? '58%' : '65%'; // eslint-disable-line react-hooks/exhaustive-deps
+      const initPct = selected ? 58 : 65; // eslint-disable-line react-hooks/exhaustive-deps
+      sheetRef.current.style.height = `${initPct}%`;
       sheetRef.current.style.transition = 'none';
+      setPanelBottom(initPct);
     }
   }, [showList]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -112,9 +114,10 @@ export default function Home() {
   // Drive height via DOM when selected/detailExpanded changes (avoids React re-render conflicts)
   useLayoutEffect(() => {
     if (!showList || !sheetRef.current || dragging.current) return;
-    const h = selected ? (detailExpanded ? '96%' : '58%') : '65%';
+    const pct = selected ? (detailExpanded ? 100 : 58) : 65;
     sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
-    sheetRef.current.style.height = h;
+    sheetRef.current.style.height = `${pct}%`;
+    setPanelBottom(pct);
   }, [selected?.id, detailExpanded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Touch drag state (refs = no re-renders during drag)
@@ -137,9 +140,9 @@ export default function Home() {
         sheetRef.current.style.transition = 'none';
       }
       e.preventDefault();
-      const pct = Math.max(15, Math.min(95, dragBaseH.current + (delta / window.innerHeight) * 100));
+      const pct = Math.max(15, Math.min(100, dragBaseH.current + (delta / window.innerHeight) * 100));
       sheetRef.current.style.height = `${pct}%`;
-      rootRef.current?.style.setProperty('--panel-bottom', `calc(${pct}% + 12px)`);
+      setPanelBottom(pct);
     };
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
@@ -150,8 +153,14 @@ export default function Home() {
     dragMoved.current = false;
     dragStartY.current = e.touches[0].clientY;
     const h = sheetRef.current ? parseFloat(sheetRef.current.style.height) : NaN;
-    dragBaseH.current = isNaN(h) ? (selected ? (detailExpanded ? 96 : 58) : 65) : h;
+    dragBaseH.current = isNaN(h) ? (selected ? (detailExpanded ? 100 : 58) : 65) : h;
     rootRef.current?.style.setProperty('--zoom-td', '0s');
+  }
+
+  function setPanelBottom(pct: number | null) {
+    if (!rootRef.current) return;
+    if (pct === null) rootRef.current.style.removeProperty('--panel-bottom');
+    else rootRef.current.style.setProperty('--panel-bottom', `calc(${pct}% + 12px)`);
   }
 
   function closeSheet() {
@@ -159,8 +168,12 @@ export default function Home() {
       sheetRef.current.style.transition = 'none';
       gsap.to(sheetRef.current, {
         height: '0%', duration: 0.3, ease: 'power3.in',
+        onUpdate: () => {
+          if (sheetRef.current) setPanelBottom((sheetRef.current.offsetHeight / window.innerHeight) * 100);
+        },
         onComplete: () => {
           if (sheetRef.current) sheetRef.current.style.height = '';
+          setPanelBottom(null);
           setShowList(false); setSelected(null); setOpenedFromList(false);
         }
       });
@@ -179,7 +192,6 @@ export default function Home() {
   function onDragEnd() {
     if (!dragging.current) return;
     dragging.current = false;
-    rootRef.current?.style.removeProperty('--panel-bottom');
     rootRef.current?.style.removeProperty('--zoom-td');
     if (!dragMoved.current || !sheetRef.current) return;
     sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
@@ -188,10 +200,12 @@ export default function Home() {
       closeSheet();
     } else if (h > 70) {
       setDetailExpanded(true);
-      sheetRef.current.style.height = '96%';
+      sheetRef.current.style.height = '100%';
+      setPanelBottom(100);
     } else {
       setDetailExpanded(false);
       sheetRef.current.style.height = selected ? '58%' : '65%';
+      setPanelBottom(selected ? 58 : 65);
     }
   }
 
@@ -235,7 +249,6 @@ export default function Home() {
           priceRange={priceRange}
           flyToCenter={flyToCenter}
           sheetFraction={selected ? 0.58 : 0}
-          panelFraction={showList ? (detailExpanded ? 0.96 : 0.58) : 0}
           onRecenter={handleRecenter}
         />
       </div>
