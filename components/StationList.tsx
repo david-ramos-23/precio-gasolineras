@@ -19,13 +19,16 @@ interface Props {
   selectedId: string | null;
   onSelect: (s: StationWithPrice) => void;
   fuel: FuelType;
+  favorites?: string[];
 }
 
-export default function StationList({ stations, selectedId, onSelect, fuel }: Props) {
+export default function StationList({ stations, selectedId, onSelect, fuel, favorites = [] }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [sortBy, setSortBy] = useState<'price' | 'distance'>('price');
+  const [onlyFavs, setOnlyFavs] = useState(false);
 
-  const sorted = [...stations].sort((a, b) => {
+  const displayed = onlyFavs ? stations.filter(s => favorites.includes(s.id)) : stations;
+  const sorted = [...displayed].sort((a, b) => {
     if (sortBy === 'price') {
       if (a.price === null && b.price === null) return 0;
       if (a.price === null) return 1;
@@ -48,6 +51,16 @@ export default function StationList({ stations, selectedId, onSelect, fuel }: Pr
             className="flex items-center gap-1.5"
             onClick={e => e.stopPropagation()}
           >
+            {favorites.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setOnlyFavs(v => !v)}
+                className={`text-[10px] px-2 py-1 rounded-lg transition-colors ${
+                  onlyFavs ? 'bg-amber-400/20 text-amber-400' : 'text-[var(--foreground)]/40 hover:text-[var(--foreground)]'
+                }`}
+                title="Solo favoritos"
+              >★</button>
+            )}
             <div className="flex rounded-lg overflow-hidden border border-[var(--panel-border)] text-[10px] font-medium">
               <button
                 type="button"
@@ -105,6 +118,9 @@ export default function StationList({ stations, selectedId, onSelect, fuel }: Pr
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[var(--foreground)] truncate flex items-center gap-1">
                       <span className="truncate">{s.name}</span>
+                      {favorites.includes(s.id) && (
+                        <span className="shrink-0 text-amber-400 text-[10px]" title="Favorita">★</span>
+                      )}
                       {s.ventaRestringida && (
                         <span
                           className="shrink-0 text-[9px] font-bold px-1 py-0.5 rounded bg-orange-500/20 text-orange-400 leading-none"

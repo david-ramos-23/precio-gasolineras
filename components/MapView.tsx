@@ -68,9 +68,10 @@ interface Props {
   onBoundsChange: (bounds: LatLngBounds) => void;
   priceRange: { min: number; max: number };
   flyToCenter?: [number, number] | null;
+  favorites?: string[];
 }
 
-export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, onBoundsChange, priceRange, flyToCenter = null }: Props) {
+export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, onBoundsChange, priceRange, flyToCenter = null, favorites = [] }: Props) {
   useEffect(() => { fixLeafletIcons(); }, []);
 
   const { resolvedTheme } = useTheme();
@@ -102,9 +103,9 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
           radius={selectedStation?.id === s.id ? 12 : 8}
           pathOptions={{
             fillColor: s.price ? priceColor(s.price, minPrice, maxPrice) : '#9ca3af',
-            color: selectedStation?.id === s.id ? '#fff' : 'transparent',
+            color: selectedStation?.id === s.id ? '#fff' : favorites.includes(s.id) ? '#f59e0b' : 'transparent',
             fillOpacity: 0.9,
-            weight: 2,
+            weight: selectedStation?.id === s.id || favorites.includes(s.id) ? 3 : 2,
           }}
           eventHandlers={{ click: () => onSelectStation(s) }}
         >
