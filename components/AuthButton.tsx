@@ -66,8 +66,7 @@ export function AuthButton() {
           </button>
           {showMenu && (
             <div className="absolute top-9 right-0 bg-[var(--panel)] border border-[var(--panel-border)] rounded-xl shadow-xl overflow-hidden z-10 min-w-[120px]">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--panel-border)]">
-                <span className="text-xs text-[var(--foreground)]/60">Tema</span>
+              <div className="flex items-center justify-center px-4 py-2 border-b border-[var(--panel-border)]">
                 <ThemeToggle />
               </div>
               <button

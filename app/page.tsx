@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import gsap from 'gsap';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import { FloatingSearch } from '@/components/FloatingSearch';
 import StationList from '@/components/StationList';
@@ -101,6 +101,61 @@ export default function Home() {
       gsap.from(sheetRef.current, { y: '100%', duration: 0.35, ease: 'power3.out' });
     }
   }, [showList]);
+
+  // Touch drag state (refs = no re-renders during drag)
+  const dragStartY = useRef(0);
+  const dragBaseH = useRef(0);
+  const dragging = useRef(false);
+  const handleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = handleRef.current;
+    if (!el) return;
+    const onMove = (e: TouchEvent) => {
+      if (!dragging.current || !sheetRef.current) return;
+      e.preventDefault();
+      const delta = dragStartY.current - e.touches[0].clientY;
+      const pct = Math.max(15, Math.min(95, dragBaseH.current + (delta / window.innerHeight) * 100));
+      sheetRef.current.style.height = `${pct}%`;
+    };
+    el.addEventListener('touchmove', onMove, { passive: false });
+    return () => el.removeEventListener('touchmove', onMove);
+  }, []);
+
+  function onDragStart(e: React.TouchEvent) {
+    dragging.current = true;
+    dragStartY.current = e.touches[0].clientY;
+    dragBaseH.current = selected ? (detailExpanded ? 92 : 58) : 65;
+    if (sheetRef.current) sheetRef.current.style.transition = 'none';
+  }
+
+  function closeSheet() {
+    if (sheetRef.current) {
+      gsap.to(sheetRef.current, {
+        y: '100%', duration: 0.3, ease: 'power3.in',
+        onComplete: () => {
+          if (sheetRef.current) { sheetRef.current.style.transform = ''; sheetRef.current.style.height = ''; }
+          setShowList(false); setSelected(null);
+        }
+      });
+    } else { setShowList(false); setSelected(null); }
+  }
+
+  function onDragEnd() {
+    if (!dragging.current || !sheetRef.current) return;
+    dragging.current = false;
+    sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+    const h = parseFloat(sheetRef.current.style.height);
+    if (h < 30) {
+      closeSheet();
+    } else if (h > 75) {
+      setDetailExpanded(true);
+      sheetRef.current.style.height = '92%';
+    } else {
+      setDetailExpanded(false);
+      sheetRef.current.style.height = selected ? '58%' : '65%';
+    }
+  }
 
   const handleLocationFound = useCallback((lat: number, lng: number) => {
     setFlyToCenter([lat, lng]);
@@ -202,10 +257,12 @@ export default function Home() {
           className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl rounded-t-2xl"
           style={{ height: selected ? (detailExpanded ? '92%' : '58%') : '65%', transition: 'height 0.3s cubic-bezier(0.4,0,0.2,1)' }}
         >
-          {/* Drag handle — always visible, toggles expand when in detail */}
+          {/* Drag handle */}
           <div
-            className="flex justify-center py-2 shrink-0 cursor-pointer"
-            onClick={() => selected && setDetailExpanded(v => !v)}
+            ref={handleRef}
+            className="flex justify-center py-3 shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
+            onTouchStart={onDragStart}
+            onTouchEnd={onDragEnd}
           >
             <div className="w-10 h-1 bg-[var(--foreground)]/20 rounded-full" />
           </div>
@@ -227,16 +284,16 @@ export default function Home() {
         </div>
       )}
 
-      {/* Mobile FAB */}
-      <button
-        onClick={() => { if (showList) { setShowList(false); setSelected(null); } else { setShowList(true); } }}
-        className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 bg-[var(--panel)] backdrop-blur-md border border-[var(--panel-border)] text-[var(--foreground)] text-sm font-medium px-5 py-2.5 rounded-full shadow-2xl cursor-pointer transition-colors"
-      >
-        {showList
-          ? <><ChevronDown className="w-4 h-4 text-slate-400" /> Cerrar</>
-          : <><ChevronUp className="w-4 h-4 text-green-400" /> {stations.length} gasolineras</>
-        }
-      </button>
+      {/* Mobile FAB — only visible when panel is closed */}
+      {!showList && (
+        <button
+          onClick={() => setShowList(true)}
+          className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 bg-[var(--panel)] backdrop-blur-md border border-[var(--panel-border)] text-[var(--foreground)] text-sm font-medium px-5 py-2.5 rounded-full shadow-2xl cursor-pointer transition-colors"
+        >
+          <ChevronUp className="w-4 h-4 text-green-400" />
+          {stations.length} gasolineras
+        </button>
+      )}
     </div>
   );
 }
