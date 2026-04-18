@@ -196,6 +196,7 @@ export default function Home() {
           onBoundsChange={setBounds}
           priceRange={priceRange}
           flyToCenter={flyToCenter}
+          sheetFraction={selected ? 0.58 : 0}
         />
       </div>
 

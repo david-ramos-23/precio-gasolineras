@@ -36,11 +36,23 @@ function MapEventHandler({
   return null;
 }
 
-function FlyTo({ station }: { station: StationWithPrice | null }) {
+function FlyTo({ station, sheetFraction = 0 }: { station: StationWithPrice | null; sheetFraction?: number }) {
   const map = useMap();
   useEffect(() => {
-    if (station) map.flyTo([station.lat, station.lng], 15, { duration: 0.8 });
-  }, [station, map]);
+    if (!station) return;
+    const zoom = 15;
+    if (sheetFraction > 0) {
+      // Offset center so station appears in the visible area above the sheet
+      const containerH = map.getSize().y;
+      const pixelOffset = containerH * sheetFraction / 2;
+      const pt = map.project([station.lat, station.lng], zoom);
+      pt.y += pixelOffset; // shift down = station appears higher on screen
+      const offsetLatLng = map.unproject(pt, zoom);
+      map.flyTo(offsetLatLng, zoom, { duration: 0.8 });
+    } else {
+      map.flyTo([station.lat, station.lng], zoom, { duration: 0.8 });
+    }
+  }, [station, map, sheetFraction]);
   return null;
 }
 
@@ -70,9 +82,10 @@ interface Props {
   priceRange: { min: number; max: number };
   flyToCenter?: [number, number] | null;
   favorites?: string[];
+  sheetFraction?: number;
 }
 
-export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, onBoundsChange, priceRange, flyToCenter = null, favorites = [] }: Props) {
+export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, onBoundsChange, priceRange, flyToCenter = null, favorites = [], sheetFraction = 0 }: Props) {
   useEffect(() => { fixLeafletIcons(); }, []);
 
   const { resolvedTheme } = useTheme();
@@ -91,7 +104,7 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CartoDB</a>'
         url={tileUrl}
       />
-      <FlyTo station={selectedStation} />
+      <FlyTo station={selectedStation} sheetFraction={sheetFraction} />
       <FlyToUser location={userLocation} />
       <MapController center={flyToCenter} />
       <MapEventHandler onCenterChange={onCenterChange} onBoundsChange={onBoundsChange} />
