@@ -121,17 +121,17 @@ export async function getStationHistory(
   return rows.map(r => ({ price: r.price, capturedAt: r.captured_at }));
 }
 
-export async function getFavorites(): Promise<Array<{ stationId: string; label: string }>> {
-  const rows = await sql`SELECT station_id, label FROM favorites ORDER BY label`;
+export async function getFavorites(userId: string): Promise<Array<{ stationId: string; label: string }>> {
+  const rows = await sql`SELECT station_id, label FROM favorites WHERE user_id = ${userId} ORDER BY label`;
   return rows.map(r => ({ stationId: r.station_id, label: r.label }));
 }
 
-export async function addFavorite(stationId: string, label: string): Promise<void> {
-  await sql`INSERT INTO favorites (station_id, label) VALUES (${stationId}, ${label}) ON CONFLICT DO NOTHING`;
+export async function addFavorite(userId: string, stationId: string, label: string): Promise<void> {
+  await sql`INSERT INTO favorites (user_id, station_id, label) VALUES (${userId}, ${stationId}, ${label}) ON CONFLICT DO NOTHING`;
 }
 
-export async function removeFavorite(stationId: string): Promise<void> {
-  await sql`DELETE FROM favorites WHERE station_id = ${stationId}`;
+export async function removeFavorite(userId: string, stationId: string): Promise<void> {
+  await sql`DELETE FROM favorites WHERE user_id = ${userId} AND station_id = ${stationId}`;
 }
 
 export async function getPreviousAverages(stationIds?: string[]): Promise<{ avgG95Prev: number | null; avgDieselPrev: number | null }> {
