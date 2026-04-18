@@ -66,3 +66,8 @@ input[type='range'] { accent-color: #22c55e; }
   0% { transform: scale(.6); opacity: .5; }
   100% { transform: scale(1.8); opacity: 0; }
 }
+
+/* Hide Leaflet attribution bar */
+.leaflet-control-attribution {
+  display: none !important;
+}

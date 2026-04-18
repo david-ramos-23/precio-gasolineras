@@ -1,0 +1,15 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - button "Centrar en mi ubicación" [ref=e4]:
+      - img [ref=e5]
+    - generic [ref=e8]:
+      - img [ref=e9]
+      - generic [ref=e12]:
+        - button "G95" [ref=e13] [cursor=pointer]
+        - button "Gasoil" [ref=e14] [cursor=pointer]
+      - button "10km" [ref=e16] [cursor=pointer]:
+        - text: 10km
+        - img [ref=e17]
+      - button "Activar tema claro" [ref=e19]:
+        - img [ref=e20]
+  - alert [ref=e26]

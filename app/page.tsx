@@ -1,8 +1,10 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import gsap from 'gsap';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import TopBar from '@/components/TopBar';
+import { FloatingSearch } from '@/components/FloatingSearch';
 import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
 import { RecenterButton } from '@/components/RecenterButton';
@@ -24,8 +26,13 @@ const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 export default function Home() {
   const [radius, setRadius] = useState(10);
-  const [fuel, setFuel] = useState<FuelType>('g95');
+  const [fuel, setFuel] = useState<FuelType>(() => {
+    if (typeof window === 'undefined') return 'g95';
+    return (localStorage.getItem('fuel') as FuelType) ?? 'g95';
+  });
+  const [detailExpanded, setDetailExpanded] = useState(false);
   const [stations, setStations] = useState<StationWithPrice[]>([]);
+  const sheetRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<StationWithPrice | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
@@ -85,6 +92,16 @@ export default function Home() {
     if (userLocation) setFlyToCenter([...userLocation]);
   };
 
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => { setDetailExpanded(false); }, [selected?.id]);
+
+  useEffect(() => {
+    if (showList && sheetRef.current) {
+      gsap.from(sheetRef.current, { y: '100%', duration: 0.35, ease: 'power3.out' });
+    }
+  }, [showList]);
+
   const handleLocationFound = useCallback((lat: number, lng: number) => {
     setFlyToCenter([lat, lng]);
     setMapCenter([lat, lng]);
@@ -127,10 +144,16 @@ export default function Home() {
         />
       </div>
 
-      <RecenterButton onClick={handleRecenter} />
+      {!showList && <RecenterButton onClick={handleRecenter} />}
 
       {/* TopBar — centered pill at top */}
-      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} onLocationFound={handleLocationFound} />
+      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={f => { setFuel(f); localStorage.setItem('fuel', f); }} onSearchOpen={() => setSearchOpen(true)} />
+      {searchOpen && (
+        <FloatingSearch
+          onClose={() => setSearchOpen(false)}
+          onLocationFound={(lat, lng) => { handleLocationFound(lat, lng); setSearchOpen(false); }}
+        />
+      )}
 
       {/* Price legend — hide on mobile when detail is full-screen */}
       {visiblePrices.length > 0 && (
@@ -174,15 +197,20 @@ export default function Home() {
 
       {/* Mobile bottom sheet */}
       {showList && (
-        <div className={`md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl ${selected ? '' : 'rounded-t-2xl'}`}
-          style={{ height: selected ? '100%' : '65%' }}>
-          {!selected && (
-            <div className="flex justify-center pt-2 pb-1">
-              <div className="w-8 h-1 bg-[var(--foreground)]/20 rounded-full" />
-            </div>
-          )}
+        <div
+          ref={sheetRef}
+          className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl rounded-t-2xl"
+          style={{ height: selected ? (detailExpanded ? '92%' : '58%') : '65%', transition: 'height 0.3s cubic-bezier(0.4,0,0.2,1)' }}
+        >
+          {/* Drag handle — always visible, toggles expand when in detail */}
+          <div
+            className="flex justify-center py-2 shrink-0 cursor-pointer"
+            onClick={() => selected && setDetailExpanded(v => !v)}
+          >
+            <div className="w-10 h-1 bg-[var(--foreground)]/20 rounded-full" />
+          </div>
           {selected ? (
-            <div className="flex flex-col h-full pt-[68px]">
+            <div className="flex flex-col h-full overflow-hidden">
               <StationDetail
                 station={selected}
                 activeFuel={fuel}
@@ -192,8 +220,8 @@ export default function Home() {
               />
             </div>
           ) : (
-            <div className="flex flex-col h-full pb-20">
-              <StationList stations={stations} selectedId={null} onSelect={s => { setSelected(s); }} fuel={fuel} favorites={favorites} />
+            <div className="flex flex-col h-full pb-16">
+              <StationList stations={stations} selectedId={null} onSelect={s => { setSelected(s); }} fuel={fuel} favorites={favorites} mobile={true} />
             </div>
           )}
         </div>

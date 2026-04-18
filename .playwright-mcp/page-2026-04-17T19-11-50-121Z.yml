@@ -1,0 +1,207 @@
+- generic [active] [ref=e1]:
+  - banner:
+    - generic:
+      - complementary [ref=e2]:
+        - insertion [ref=e3]:
+          - generic [ref=e6]:
+            - heading "Estos son temas relacionados con el artículo que podrían interesarte" [level=2] [ref=e8]: Ver más
+            - link "Gadgets para ahorrar gasolina" [ref=e9] [cursor=pointer]:
+              - generic "Gadgets para ahorrar gasolina" [ref=e10]
+              - img [ref=e12]
+            - link "Automóviles y vehículos" [ref=e14] [cursor=pointer]:
+              - generic "Automóviles y vehículos" [ref=e15]
+              - img [ref=e17]
+            - link "Precio Gasoil" [ref=e19] [cursor=pointer]:
+              - generic "Precio Gasoil" [ref=e20]
+              - img [ref=e22]
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - link "Alemania" [ref=e26] [cursor=pointer]:
+            - /url: //www.komparing.com/de/tankstellen/
+            - img "Alemania" [ref=e27]
+          - link "Francia" [ref=e28] [cursor=pointer]:
+            - /url: //www.komparing.com/fr/stations-service/
+            - img "Francia" [ref=e29]
+          - link "Italia" [ref=e30] [cursor=pointer]:
+            - /url: //www.komparing.com/it/stazioni-di-servizio/
+            - img "Italia" [ref=e31]
+          - link "España" [ref=e32] [cursor=pointer]:
+            - /url: //www.komparing.com/es/gasolineras/
+            - img "España" [ref=e33]
+          - link "Portugal" [ref=e34] [cursor=pointer]:
+            - /url: //www.komparing.com/pt/postos-de-abastecimento/
+            - img "Portugal" [ref=e35]
+          - link "World" [ref=e36] [cursor=pointer]:
+            - /url: //www.komparing.com/index.html?page=global
+            - img "World" [ref=e37]
+        - heading "Compara el Precio de Gasolina y Gasoil" [level=1] [ref=e38]:
+          - link "Compara el Precio de Gasolina y Gasoil" [ref=e39] [cursor=pointer]:
+            - /url: //www.komparing.com/es/gasolineras/
+            - img "Compara el Precio de Gasolina y Gasoil" [ref=e40]
+        - link "Compara y Ahorra en la cesta de la compra del supermercado" [ref=e42] [cursor=pointer]:
+          - /url: //www.komparing.com/es/supermercados/
+          - img "Compara y Ahorra en la cesta de la compra del supermercado" [ref=e43]
+  - main [ref=e44]:
+    - generic [ref=e46]:
+      - heading "PRECIO DEL GASOIL" [level=2] [ref=e48]
+      - navigation [ref=e49]:
+        - list:
+          - listitem [ref=e50]:
+            - link "Menú" [ref=e52] [cursor=pointer]:
+              - /url: //www.komparing.com/es/
+              - img "Menú" [ref=e53]
+          - listitem [ref=e54]:
+            - link "Compara el Precio de Gasolina y Gasoil" [ref=e56] [cursor=pointer]:
+              - /url: //www.komparing.com/es/
+              - img "Compara el Precio de Gasolina y Gasoil" [ref=e57]
+      - navigation [ref=e58]:
+        - list:
+          - listitem [ref=e59]:
+            - link "en ruta >" [ref=e61] [cursor=pointer]:
+              - /url: //www.komparing.com/es/ruta/
+          - listitem [ref=e62]:
+            - link "Teléfonos de Gasolineras" [ref=e64] [cursor=pointer]:
+              - /url: //www.komparing.com/es/telefono_gasolinera/
+              - img "Teléfonos de Gasolineras" [ref=e65]
+      - button "Encuentra mi posición" [ref=e67] [cursor=pointer]:
+        - img "Encuentra mi posición" [ref=e68]
+      - generic [ref=e69]:
+        - textbox "Escribe aquí tu localización" [ref=e70]
+        - link "Buscar >" [ref=e72] [cursor=pointer]:
+          - /url: javascript:codeAddress();
+      - navigation [ref=e74]:
+        - generic:
+          - list:
+            - listitem [ref=e75]:
+              - radio "Precio Gasoil" [checked] [ref=e76]
+              - link "Gasoil" [ref=e77] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasoil
+                - strong [ref=e79]: Gasoil
+            - listitem [ref=e80]:
+              - radio "Precio Gasolina 95" [ref=e81]
+              - link "Gasolina 95" [ref=e82] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-95
+                - strong [ref=e84]: Gasolina 95
+            - listitem [ref=e85]:
+              - radio "Precio Gasolina 95 Especial" [ref=e86]
+              - link "G95 +" [ref=e87] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-95-especial
+            - listitem [ref=e88]:
+              - radio "Precio Gasolina 95 E10" [ref=e89]
+              - link "G95 E10 No apta para motores de vehículos antiguos." [ref=e90] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-95-e10
+                - generic [ref=e91]:
+                  - text: G95 E10
+                  - img "No apta para motores de vehículos antiguos." [ref=e92]
+            - listitem [ref=e93]:
+              - radio "Precio Gasolina 98" [ref=e94]
+              - link "Gasolina 98" [ref=e95] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-98
+            - listitem [ref=e96]:
+              - radio "Precio Diésel +" [ref=e97]
+              - link "Diésel +" [ref=e98] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/diesel-plus
+            - listitem [ref=e99]:
+              - radio "Precio Biodiésel" [ref=e100]
+              - link "Biodiésel" [ref=e101] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/biodiesel
+            - listitem [ref=e102]:
+              - radio "Precio Bioetanol E85" [ref=e103]
+              - link "Bioetanol E85" [ref=e104] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/bioetanol-e85
+            - listitem [ref=e105]:
+              - radio "Precio Gas Licuado del Petróleo" [ref=e106]
+              - link "GLP" [ref=e107] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gas-licuado-petroleo
+            - listitem [ref=e108]:
+              - radio "Precio Gas Natural Comprimido" [ref=e109]
+              - link "GNC" [ref=e110] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gas-natural-comprimido
+            - listitem [ref=e111]:
+              - radio "Precio Gasóleo B" [ref=e112]
+              - link "Gasóleo B" [ref=e113] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasoleo-b
+            - listitem [ref=e114]:
+              - radio "Precio Gasóleo Calefacción" [ref=e115]
+              - link "Gasóleo C" [ref=e116] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasoleo-c
+      - generic [ref=e119]:
+        - table [ref=e120]:
+          - rowgroup [ref=e121]:
+            - row "Dirección GASOIL Dist." [ref=e122]:
+              - cell "Dirección" [ref=e123]:
+                - generic [ref=e125]: Dirección
+              - cell "GASOIL" [ref=e126]:
+                - generic [ref=e127]: GASOIL
+              - cell "Dist." [ref=e128]:
+                - generic [ref=e129]: Dist.
+              - cell [ref=e130]
+            - 'row "Actualizado: 17/04/2026 - 21:00 * venta restringida Precios marcados con * en gasolineras cuya venta está limitada a socios o cooperativistas." [ref=e132]':
+              - 'cell "Actualizado: 17/04/2026 - 21:00 * venta restringida Precios marcados con * en gasolineras cuya venta está limitada a socios o cooperativistas." [ref=e133]':
+                - generic [ref=e134]: "Actualizado: 17/04/2026 - 21:00"
+                - generic [ref=e135]:
+                  - text: "* venta restringida"
+                  - img "Precios marcados con * en gasolineras cuya venta está limitada a socios o cooperativistas." [ref=e137]
+        - table [ref=e138]:
+          - rowgroup [ref=e139]:
+            - row [ref=e140]:
+              - cell [ref=e141]
+    - complementary [ref=e143]:
+      - insertion [ref=e144]:
+        - iframe [ref=e146]:
+          - generic [ref=f40e3]:
+            - link "ad" [ref=f40e4] [cursor=pointer]:
+              - /url: //cdn.mediago.io/js/officialWebsite/policy.html
+              - img [ref=f40e5]
+            - link "[2026] Adiós a los audífonos caros (si tiene más de 65 años)" [ref=f40e7] [cursor=pointer]:
+              - /url: https://trace-eu.mediago.io/ju/ic?tn=41b6e88a2b85b0e731ef8e73e5558712&trackingid=c9fde661134399961ff712aee0faf222&acid=617&data=9XqpTChr740VaXhZr16IF-nRdnix9izTYjvVdUYfHo2QHrMXneoi5Xv6zMrwDVLtNQGzditD88YnFImV8xjHU7GG3NcgQvQpGr_LPd7Q18VBmqMZQmwaHlPnjpO9slpUEZFsfJU5GAcGMHVfK1X88QOebtBhWM52-nDA04ybIaXTewzXav9eIiU_R3NK_YeQQFQmA6cKq--Qw8KClMnIyaAiEeFS_roF1DP1FhBRLC-oWw2xXi30tq6H1q-9yKjMza49ZBnD-CQ5wzxO66Yy8ckkJYuGeXPUaoeyrht7tYDG3Oy9H_Z_U5OrDA9IZbyD_DRZw5BfnBI5NmbmhPQQCvGFm3A9eDf1dZGsL3pB6T4MZpUCAyG2DgynY98EHmeurqCn9KFWrLOsT_VxpvPkDqnk022oxNsNJek4igdRJPxmG0Fy0YfmCjceI-AelTL8feP9H0CnJTlh5SlIbEYBDQhrSEk-GkaU2bdwvWMAa6w3gsVqkXtLVoEJPYn1G65B7O3m-aSwMfVk1YoSm6jFvNqqiV4KLtgZ6xMysL6hyQletq0IwXjlPuRdH3z-1xvajlalyPHABl5V1KZin3e849zeg0hQ3l2lIRBBS51-FQcD82MsZD-BshZA5gzRLTW-OP4tQ9CH7PqeWrISD7xFcraySVy1T_OvfIdBenn3kLectbnq59Y5xX4Akzo-mO1FQHTQuSB7PB_yGknjDE7f5r2oE4I-TNQ5c6CJzZseyG-IW5aDooC7Z5SEsCPahyGWDhQYqsdXXhzmG_xOE6B4nAnTNpXhXa3pGSx5ahXFFvvLwo-hdJJsBC5zzbBibOEUAfIEq5XLdmEbs3_-vLIFu1OLgi6PvEFHqUuTluEuFIt0rNmbARz57SkXc8aZ3kZas-YPy_yXVpSRzq3jSoZY04ZcI5a-grxo2LjKRn-fE5OoBScXB9LUdtEYFnLLSFEAhrLbo--swD97u5DQLIGKwc_2RNlb92PNTzP3bWvnQLpQnpwPQApY5PxZ11_N5xTWF7nWu71V3vu0nTJkIGibUmnmtYu38odqv49csi8ZoX3BoxU1v1R5adSbckEtBZm_rvuBs9y2bq2qOIXOzSZyEyM2BMz2jqeATcR-LJH1TriAV-Q_XioSfRQl1-FuCqwTPuVU7vUj3D6wphY5Mct1T7a7ofXQUzSNIFrFYDPt-8SiCUmC-dAUP9glN7gwjJkrLZUIcxg_Hr826oYFGkO36vfs1chJJk1Sc2G0qixdn0yopQP7qU0R3q8teaiMCv5WNTgqGYbmQkZK9S9Osq2H0KRC4yeSGlq8ycAfIzjUVozgMHzemhXPBmKfdLlSaYoLvHG-PoqizD7ZIjOfkUay-BaysBS5a6PN9BQILI38ILUa84RqHeA_wEKPs40pu0ibv0QThMwQKxcqC07ezos-T9Q4buK1bQS_U-E1JVc2-dFwHDjkoqzbu_5P45DPEcX-vP6rg9PtpVXW3xEhudgy0svCQzzN4J0GiKd750AefS2Decw3IVoIuwF4V8PgAvxlIUDj2-SYgO3J7cf8j7umxbCBiZKrm--lIndo02rR-f9LdEjCL0z8gXwPifj4jOcsyRIByUjP-lxlTZHGAGY8sDxnnHmDAd5xEttLN29Qt_lshRaxK-aWzfw6u1rVzki1C2MIBeM5LzhpBet1OS91jhyNeI_fnLvd9pCpt5xWxf5z7s3OXZo78TRM9fnIYQ7b0PLiStkubsFjNRpN5j_Gcnu7oMTlYDCynxc-pKV6PYBukkpo-e7xst9sJ5AWyWUM7ly8QGwJBrD4abGFB9-UNIjdn3goEWZiYGxCXbcwN643M3AVTEU3UiMbQ_53rz82WNf_ka1YVwo_QgO40uH6WWgPSukFSzNG2GJ2EAYQLQWIiv2ZWbb2M853YOPEs39Vp3csN0qXJ8GR5PH-EYyl8pv01hxnDGuCk68QqeeXsraAguoOe0LMpSgyCgWpu5n2xR3kb1HeMhuBcZ_P-hdhVYw0b9TJOKkXuafdAFtfh9PtjTdnarH4WipnAAaZU_j0zJn5a6IVR6gR3OILeJKDX52BBsuM_kXdqwalfbNKdxawCoTOCQwCQy6uMwNMaeBJM4oYyJaM5VyF179jL9CYIhcnGLa-uhRRU24d-GynpyZQ-lL8Sw56lstdwUbZlQ2tZWH0P5XLXOEm5PcWv6cXZijWlckEmFAhtzWNy0zOKA3oRVG9bIdLc-4iv2ZB1x749kAo21sLPKVQr2BZ9Jz1TFbufvGNBVOvL9F_dfZy46yl8RBKqESPtKN6bOkAD8aN3iXp6eeX18HjMMlNdSvxn6gbOaVjJf4SyIIKq-usogq72AXo7QhEXX85ufxK_F5pX5irzKT6EpcTgkbwMLH_hVL0Oi86teO_cPv5f882g7o6BJ4K-TpFz35PtAUWRISHRGrjx9Q9Vloc9rzmHMgZqNjLqiR2ww0ILwzLbQ-3Kvs&uid=CAESEICnV4PZypdHOb7AUSPfYvY&mguid=&ap=0.018895&tid=102&gprice=E3Hl5dzsFlxzPct8k3_hEWBgwM4YI7vO4-k7BbQjwqc&campaignid=4809417&google_click_url=https://adclick.g.doubleclick.net/aclk%3Fsa%3DL%26ai%3DCKB3G9IXiaf-LKZry_c8Py7eF8Qn577npc8D4-ezNEMCNtwEQASC3ubwcYNUFyAEJqAMByAMCqgSnAk_Qpz99s30DoUMABUeiAWhZ82blRCKTcbHmWL12ZDeqmmaarlknm81pE8EhZkoJuNrHdgKVgbcxlMoQW161Y7dxkPS29erJ5NykRei28ArwsulfZd5O0C6Pm1j7cIi3hn3OKungZVSj-UyFN6SCeTbqytzKmHIEdZxsci1jlbYLMaWcRbqdUXy6oy-FOrqRDnVn8gdB3xBt5_pBOzonukBmUVC3CJGOL5TvpJRpfqYxEI-d9gTW3vhaURN-zIsJwxkGO2cHauJ3zyxXP9sMGc257b-Ra2aIBItN_EhpzK0M_3bXkSblrfLorhNyQgP_fHYHGXloIgWIF7DQb_70j_G0HfSDDeiv_MSwTB4cjkr_Ksme7PGoAXQ9OppEU1uq95AX97sr-yaABo-93onwxIi0aKAGIagHk9ixAqgHlNixAqgHldixAqgHmuGxAqgHpr4bqAeW2BuoB6qbsQKoB_-esQKoB9-fsQKoB62-sQKoB7_TsQLYBwDSCDEIgOGAEBABMgiqgoCAgICACDoQgMADgICEgICUruADqIeAEEi9_cE6WNyYgsTL9ZMD-gsCCAGADAGqDQJFU-oNEwiI2oLEy_WTAxUaef8DHctbIZ6IDgnQFQGAFwGyFxAYDCoKNjQ5MDE4OTQ2M1ABqhgXCf_UeOkGIMxAEgo2NDkwMTg5NDYzGAE%26num%3D1%26sig%3DAOD64_3sHOnCVENCJiHqK0GgKzzHshpJ6Q%26client%3Dca-pub-7045124260884686%26adurl%3D
+              - generic [ref=f40e10]: "[2026] Adiós a los audífonos caros (si tiene más de 65 años)"
+    - generic [ref=e147]:
+      - generic [ref=e148]: Comparador de precios en gasolineras
+      - generic [ref=e149]:
+        - strong [ref=e150]: Indica una calle o localidad al buscador
+        - text: para conocer el precio del gasoil y gasoil especial.
+        - text: Dispones de un listado con el precio de gasolina y gasoil. Ahorra dinero con el mejor comparador de gasolineras.
+        - text: Komparing.com, con OpenStreetMap y Leaflet, encuentra gasolineras
+        - strong [ref=e151]: (datos continuamente actualizados)
+        - text: .
+      - link "Síguenos en X - Twitter" [ref=e153] [cursor=pointer]:
+        - /url: https://twitter.com/komparing
+        - img "Síguenos en X - Twitter" [ref=e154]
+      - link "Hazte fan en Facebook" [ref=e156] [cursor=pointer]:
+        - /url: https://www.facebook.com/komparing
+        - img "Hazte fan en Facebook" [ref=e157]
+    - complementary [ref=e158]
+  - contentinfo [ref=e159]:
+    - link:
+      - /url: javascript:scroll(0,0)
+    - generic [ref=e160]:
+      - generic [ref=e161]:
+        - link "Acerca de K" [ref=e162] [cursor=pointer]:
+          - /url: //www.komparing.com/es/acercade.php
+        - strong [ref=e163]: ·
+        - link "Aviso Legal" [ref=e164] [cursor=pointer]:
+          - /url: //www.komparing.com/es/legal.php
+        - strong [ref=e165]: ·
+        - link "Política de Cookies" [ref=e166] [cursor=pointer]:
+          - /url: //www.komparing.com/es/cookies.php
+        - strong [ref=e167]: ·
+        - link "Komparing.com Global" [ref=e168] [cursor=pointer]:
+          - /url: //www.komparing.com/index.html?page=global
+        - insertion [ref=e170]:
+          - generic [ref=e173]:
+            - heading "Estos son temas relacionados con el artículo que podrían interesarte" [level=2] [ref=e175]: Ver más
+            - link "Cursos de conducción eficiente" [ref=e176] [cursor=pointer]:
+              - generic "Cursos de conducción eficiente" [ref=e177]
+              - img [ref=e179]
+            - link "Diésel +" [ref=e181] [cursor=pointer]:
+              - generic "Diésel +" [ref=e182]
+              - img [ref=e184]
+            - link "Comparar precios gasolineras" [ref=e186] [cursor=pointer]:
+              - generic "Comparar precios gasolineras" [ref=e187]
+              - img [ref=e189]
+      - generic [ref=e191]:
+        - generic [ref=e192]: Copyright © 2026 Komparing.com
+        - generic [ref=e194]:
+          - button "Privacy and cookie settings" [ref=e195] [cursor=pointer]
+          - generic [ref=e196]: "Managed by Google. Complies with IAB TCF. CMP ID: 300"

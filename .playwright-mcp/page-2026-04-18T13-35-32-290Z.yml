@@ -1,0 +1,105 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - generic:
+        - generic:
+          - img
+        - generic:
+          - button
+        - generic [ref=e2002]:
+          - generic [ref=e2004]:
+            - strong [ref=e2005]: SIMON GRUP
+            - text: 1.339€
+          - button "Close popup" [ref=e2007] [cursor=pointer]: ×
+      - generic:
+        - generic [ref=e5]:
+          - button "Zoom in" [ref=e6] [cursor=pointer]: +
+          - button "Zoom out" [ref=e7] [cursor=pointer]: −
+        - generic [ref=e8]:
+          - link "Leaflet" [ref=e1967] [cursor=pointer]:
+            - /url: https://leafletjs.com
+            - img [ref=e1968]
+            - text: Leaflet
+          - text: "| ©"
+          - link "OSM" [ref=e1972] [cursor=pointer]:
+            - /url: https://www.openstreetmap.org/copyright
+          - text: ©
+          - link "CartoDB" [ref=e1973] [cursor=pointer]:
+            - /url: https://carto.com/
+    - button "Centrar en mi ubicación" [ref=e16]:
+      - img [ref=e17]
+    - generic [ref=e20]:
+      - img [ref=e21]
+      - button "G95" [ref=e25] [cursor=pointer]:
+        - text: G95
+        - img [ref=e26]
+      - button "10km" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: 10km
+        - img [ref=e31]
+      - button "Buscar localidad" [ref=e1963] [cursor=pointer]:
+        - img [ref=e1964]
+      - button "Activar tema oscuro" [ref=e1974]:
+        - img [ref=e1975]
+      - button "Entrar" [ref=e218] [cursor=pointer]
+    - generic:
+      - generic:
+        - paragraph: 14 gasolineras en vista
+        - generic:
+          - generic: 1.339€
+          - generic: 1.569€
+    - generic [ref=e2101]:
+      - generic [ref=e2103]:
+        - generic [ref=e2104]:
+          - heading "SIMON GRUP" [level=2] [ref=e2105]
+          - generic [ref=e2106]:
+            - img [ref=e2107]
+            - paragraph [ref=e2110]: CARRETERA VILLAVERDE A VALLECAS KM. 283
+          - paragraph [ref=e2111]: Madrid, MADRID
+          - link "Cómo llegar" [ref=e2112] [cursor=pointer]:
+            - /url: https://www.google.com/maps/dir/?api=1&destination=40.373139,-3.63825&travelmode=driving
+            - img [ref=e2113]
+            - text: Cómo llegar
+        - generic [ref=e2115]:
+          - button "Favorita" [ref=e2116] [cursor=pointer]:
+            - img [ref=e2117]
+          - button [ref=e2119] [cursor=pointer]:
+            - img [ref=e2120]
+      - generic [ref=e2123]:
+        - generic [ref=e2124]:
+          - generic [ref=e2125]:
+            - paragraph [ref=e2126]: Gasolina 95 E5
+            - text: 1.339€
+          - generic [ref=e2128]:
+            - img [ref=e2129]
+            - generic [ref=e2131]: 7.4 km
+        - paragraph [ref=e2132]: "Actualizado: 18/4/26, 12:01"
+      - generic [ref=e2133]:
+        - generic [ref=e2134]:
+          - paragraph [ref=e2135]: Historial
+          - generic [ref=e2136]:
+            - button "7d" [ref=e2137] [cursor=pointer]
+            - button "30d" [ref=e2138] [cursor=pointer]
+            - button "90d" [ref=e2139] [cursor=pointer]
+        - application [ref=e2142]:
+          - generic [ref=e2150]:
+            - generic [ref=e2151]:
+              - generic [ref=e2153]: 17/4
+              - generic [ref=e2155]: 17/4
+              - generic [ref=e2157]: 17/4
+              - generic [ref=e2159]: 17/4
+              - generic [ref=e2161]: 17/4
+              - generic [ref=e2163]: 17/4
+              - generic [ref=e2165]: 17/4
+              - generic [ref=e2167]: 18/4
+              - generic [ref=e2169]: 18/4
+              - generic [ref=e2171]: 18/4
+            - generic [ref=e2172]:
+              - generic [ref=e2174]: "1.33"
+              - generic [ref=e2176]: "1.36"
+              - generic [ref=e2178]: "1.39"
+              - generic [ref=e2180]: "1.43"
+    - button "Cerrar" [active] [ref=e2181] [cursor=pointer]:
+      - img [ref=e2182]
+      - text: Cerrar
+  - alert [ref=e44]
+  - generic [ref=e2094]: "1.33"

@@ -11,8 +11,8 @@ export function PriceLegend({ count, minPrice, maxPrice }: Props) {
   if (count === 0) return null;
 
   return (
-    <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[999] pointer-events-none">
-      <div className="flex flex-col items-center gap-1.5 bg-[var(--panel)] border border-[var(--panel-border)] backdrop-blur-md rounded-xl px-3 py-2 shadow-md">
+    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[999] pointer-events-none">
+      <div className="flex flex-row items-center gap-3 bg-[var(--panel)] border border-[var(--panel-border)] backdrop-blur-md rounded-full px-4 py-1.5 shadow-md">
         <p
           className="text-[10px] font-medium tracking-wide uppercase text-[var(--foreground)]/50"
           style={{ fontFamily: 'var(--font-fira-code)' }}

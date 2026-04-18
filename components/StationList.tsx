@@ -20,9 +20,10 @@ interface Props {
   onSelect: (s: StationWithPrice) => void;
   fuel: FuelType;
   favorites?: string[];
+  mobile?: boolean;
 }
 
-export default function StationList({ stations, selectedId, onSelect, fuel, favorites = [] }: Props) {
+export default function StationList({ stations, selectedId, onSelect, fuel, favorites = [], mobile = false }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [sortBy, setSortBy] = useState<'price' | 'distance'>('price');
   const [onlyFavs, setOnlyFavs] = useState(false);
@@ -39,7 +40,7 @@ export default function StationList({ stations, selectedId, onSelect, fuel, favo
   });
 
   return (
-    <div className="w-72 flex flex-col rounded-2xl bg-[var(--panel)] border border-[var(--panel-border)] shadow-xl backdrop-blur-md overflow-hidden">
+    <div className={mobile ? 'flex flex-col h-full overflow-hidden' : 'w-72 flex flex-col rounded-2xl bg-[var(--panel)] border border-[var(--panel-border)] shadow-xl backdrop-blur-md overflow-hidden'}>
       {/* Header */}
       <div
         className="flex items-center justify-between px-3 py-2 border-b border-[var(--panel-border)] cursor-pointer select-none"
@@ -95,7 +96,7 @@ export default function StationList({ stations, selectedId, onSelect, fuel, favo
 
       {/* Scrollable list body */}
       {!collapsed && (
-        <div className="overflow-y-auto max-h-[55vh]">
+        <div className={mobile ? 'flex-1 overflow-y-auto' : 'overflow-y-auto max-h-[55vh]'}>
           {stations.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 gap-2 px-4">
               <p className="text-sm text-[var(--foreground)]/40 text-center">Sin gasolineras en esta zona</p>

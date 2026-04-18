@@ -1,0 +1,325 @@
+- generic [ref=e1]:
+  - banner:
+    - generic:
+      - complementary [ref=e2]:
+        - insertion [ref=e3]
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - link "Alemania" [ref=e7] [cursor=pointer]:
+            - /url: //www.komparing.com/de/tankstellen/
+            - img "Alemania" [ref=e8]
+          - link "Francia" [ref=e9] [cursor=pointer]:
+            - /url: //www.komparing.com/fr/stations-service/
+            - img "Francia" [ref=e10]
+          - link "Italia" [ref=e11] [cursor=pointer]:
+            - /url: //www.komparing.com/it/stazioni-di-servizio/
+            - img "Italia" [ref=e12]
+          - link "España" [ref=e13] [cursor=pointer]:
+            - /url: //www.komparing.com/es/gasolineras/
+            - img "España" [ref=e14]
+          - link "Portugal" [ref=e15] [cursor=pointer]:
+            - /url: //www.komparing.com/pt/postos-de-abastecimento/
+            - img "Portugal" [ref=e16]
+          - link "World" [ref=e17] [cursor=pointer]:
+            - /url: //www.komparing.com/index.html?page=global
+            - img "World" [ref=e18]
+        - heading "Compara el Precio de Gasolina y Gasoil" [level=1] [ref=e19]:
+          - link "Compara el Precio de Gasolina y Gasoil" [ref=e20] [cursor=pointer]:
+            - /url: //www.komparing.com/es/gasolineras/
+            - img "Compara el Precio de Gasolina y Gasoil" [ref=e21]
+        - link "Compara y Ahorra en la cesta de la compra del supermercado" [ref=e23] [cursor=pointer]:
+          - /url: //www.komparing.com/es/supermercados/
+          - img "Compara y Ahorra en la cesta de la compra del supermercado" [ref=e24]
+  - main [ref=e25]:
+    - generic [ref=e27]:
+      - heading "PRECIO DEL GASOIL" [level=2] [ref=e29]
+      - navigation [ref=e30]:
+        - list:
+          - listitem [ref=e31]:
+            - link "Menú" [ref=e33] [cursor=pointer]:
+              - /url: //www.komparing.com/es/
+              - img "Menú" [ref=e34]
+          - listitem [ref=e35]:
+            - link "Compara el Precio de Gasolina y Gasoil" [ref=e37] [cursor=pointer]:
+              - /url: //www.komparing.com/es/
+              - img "Compara el Precio de Gasolina y Gasoil" [ref=e38]
+      - navigation [ref=e39]:
+        - list:
+          - listitem [ref=e40]:
+            - link "en ruta >" [ref=e42] [cursor=pointer]:
+              - /url: //www.komparing.com/es/ruta/
+          - listitem [ref=e43]:
+            - link "Teléfonos de Gasolineras" [ref=e45] [cursor=pointer]:
+              - /url: //www.komparing.com/es/telefono_gasolinera/
+              - img "Teléfonos de Gasolineras" [ref=e46]
+      - button "Encuentra mi posición" [ref=e48] [cursor=pointer]:
+        - img "Encuentra mi posición" [ref=e49]
+      - generic [ref=e50]:
+        - textbox "Escribe aquí tu localización" [ref=e51]
+        - link "Buscar >" [ref=e53] [cursor=pointer]:
+          - /url: javascript:codeAddress();
+      - navigation [ref=e55]:
+        - generic:
+          - list:
+            - listitem [ref=e56]:
+              - radio "Precio Gasoil" [checked] [ref=e57]
+              - link "Gasoil" [ref=e58] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasoil
+                - strong [ref=e60]: Gasoil
+            - listitem [ref=e61]:
+              - radio "Precio Gasolina 95" [ref=e62]
+              - link "Gasolina 95" [ref=e63] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-95
+                - strong [ref=e65]: Gasolina 95
+            - listitem [ref=e66]:
+              - radio "Precio Gasolina 95 Especial" [ref=e67]
+              - link "G95 +" [ref=e68] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-95-especial
+            - listitem [ref=e69]:
+              - radio "Precio Gasolina 95 E10" [ref=e70]
+              - link "G95 E10 No apta para motores de vehículos antiguos." [ref=e71] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-95-e10
+                - generic [ref=e72]:
+                  - text: G95 E10
+                  - img "No apta para motores de vehículos antiguos." [ref=e73]
+            - listitem [ref=e74]:
+              - radio "Precio Gasolina 98" [ref=e75]
+              - link "Gasolina 98" [ref=e76] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasolina-98
+            - listitem [ref=e77]:
+              - radio "Precio Diésel +" [ref=e78]
+              - link "Diésel +" [ref=e79] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/diesel-plus
+            - listitem [ref=e80]:
+              - radio "Precio Biodiésel" [ref=e81]
+              - link "Biodiésel" [ref=e82] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/biodiesel
+            - listitem [ref=e83]:
+              - radio "Precio Bioetanol E85" [ref=e84]
+              - link "Bioetanol E85" [ref=e85] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/bioetanol-e85
+            - listitem [ref=e86]:
+              - radio "Precio Gas Licuado del Petróleo" [ref=e87]
+              - link "GLP" [ref=e88] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gas-licuado-petroleo
+            - listitem [ref=e89]:
+              - radio "Precio Gas Natural Comprimido" [ref=e90]
+              - link "GNC" [ref=e91] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gas-natural-comprimido
+            - listitem [ref=e92]:
+              - radio "Precio Gasóleo B" [ref=e93]
+              - link "Gasóleo B" [ref=e94] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasoleo-b
+            - listitem [ref=e95]:
+              - radio "Precio Gasóleo Calefacción" [ref=e96]
+              - link "Gasóleo C" [ref=e97] [cursor=pointer]:
+                - /url: //www.komparing.com/es/gasolineras/gasoleo-c
+      - generic [ref=e100]:
+        - table [ref=e101]:
+          - rowgroup [ref=e102]:
+            - row "Dirección GASOIL Dist." [ref=e103]:
+              - cell "Dirección" [ref=e104]:
+                - generic [ref=e106]: Dirección
+              - cell "GASOIL" [ref=e107]:
+                - generic [ref=e108]: GASOIL
+              - cell "Dist." [ref=e109]:
+                - generic [ref=e110]: Dist.
+              - cell [ref=e111]
+            - 'row "Actualizado: 17/04/2026 - 21:00 * venta restringida Precios marcados con * en gasolineras cuya venta está limitada a socios o cooperativistas." [ref=e113]':
+              - 'cell "Actualizado: 17/04/2026 - 21:00 * venta restringida Precios marcados con * en gasolineras cuya venta está limitada a socios o cooperativistas." [ref=e114]':
+                - generic [ref=e115]: "Actualizado: 17/04/2026 - 21:00"
+                - generic [ref=e116]:
+                  - text: "* venta restringida"
+                  - img "Precios marcados con * en gasolineras cuya venta está limitada a socios o cooperativistas." [ref=e118]
+        - table [ref=e119]:
+          - rowgroup [ref=e120]:
+            - row [ref=e121]:
+              - cell [ref=e122]
+    - complementary [ref=e124]:
+      - insertion [ref=e125]
+    - generic [ref=e127]:
+      - generic [ref=e128]: Comparador de precios en gasolineras
+      - generic [ref=e129]:
+        - strong [ref=e130]: Indica una calle o localidad al buscador
+        - text: para conocer el precio del gasoil y gasoil especial.
+        - text: Dispones de un listado con el precio de gasolina y gasoil. Ahorra dinero con el mejor comparador de gasolineras.
+        - text: Komparing.com, con OpenStreetMap y Leaflet, encuentra gasolineras
+        - strong [ref=e131]: (datos continuamente actualizados)
+        - text: .
+      - link "Síguenos en X - Twitter" [ref=e133] [cursor=pointer]:
+        - /url: https://twitter.com/komparing
+        - img "Síguenos en X - Twitter" [ref=e134]
+      - link "Hazte fan en Facebook" [ref=e136] [cursor=pointer]:
+        - /url: https://www.facebook.com/komparing
+        - img "Hazte fan en Facebook" [ref=e137]
+    - complementary [ref=e138]:
+      - link "Guirguillano" [ref=e139] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/navarra/guirguillano
+      - link "Colomers" [ref=e140] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/girona/colomers
+      - link "Lourenzá" [ref=e141] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/lugo/lourenza
+      - link "Boca de huergano" [ref=e142] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/leon/boca-de-huergano
+      - link "Navas de riofrio" [ref=e143] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/segovia/navas-de-riofrio
+      - link "Toril" [ref=e144] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/caceres/toril
+      - link "Santa lucia" [ref=e145] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/murcia/santa-lucia
+      - link "Villarreal" [ref=e146] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/castellon/villarreal
+      - link "Almaraz" [ref=e147] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/caceres/almaraz
+      - link "Lamas" [ref=e148] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/lugo/lamas
+      - link "Andatza" [ref=e149] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/guipuzcoa/andatza
+      - link "Llanos" [ref=e150] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/asturias/llanos
+      - link "Carballeda" [ref=e151] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/ourense/carballeda
+      - link "Pruna" [ref=e152] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/sevilla/pruna
+      - link "Berrio" [ref=e153] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/vizcaya/berrio
+      - link "Balada" [ref=e154] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/tarragona/balada
+      - link "Pobes" [ref=e155] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/alava/pobes
+      - link "A Fonsagrada" [ref=e156] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/lugo/a-fonsagrada
+      - link "Santigoso" [ref=e157] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/ourense/santigoso
+      - link "Puigverd de lleida" [ref=e158] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/lleida/puigverd-de-lleida
+      - link "Villaverde de abajo" [ref=e159] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/leon/villaverde-de-abajo
+      - link "Nuez" [ref=e160] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/zamora/nuez
+      - link "Mier" [ref=e161] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/asturias/mier
+      - link "La Almolda" [ref=e162] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/zaragoza/la-almolda
+      - link "Ribota de ordunte" [ref=e163] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/burgos/ribota-de-ordunte
+      - link "Ourol" [ref=e164] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/lugo/ourol
+      - link "Anta" [ref=e165] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/zamora/anta
+      - link "Tocodoman" [ref=e166] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/las-palmas/tocodoman
+      - link "Vivente" [ref=e167] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/a-coruna/vivente
+      - link "La Arena" [ref=e168] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/asturias/la-arena
+      - link "Aldealengua de pedraza" [ref=e169] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/segovia/aldealengua-de-pedraza
+      - link "Batres" [ref=e170] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/madrid/batres
+      - link "Castelldans" [ref=e171] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/lleida/castelldans
+      - link "Serrejon" [ref=e172] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/caceres/serrejon
+      - link "Santomera" [ref=e173] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/murcia/santomera
+      - link "Daimús" [ref=e174] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/valencia/daimus
+      - link "Estella/Lizarra" [ref=e175] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/navarra/estellalizarra
+      - link "Coreses" [ref=e176] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/zamora/coreses
+      - link "Arriate" [ref=e177] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/malaga/arriate
+      - link "Eiras" [ref=e178] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/pontevedra/eiras
+      - link "Tíjola" [ref=e179] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/almeria/tijola
+      - link "Olaz" [ref=e180] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/navarra/olaz
+      - link "Priaranza del bierzo" [ref=e181] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/leon/priaranza-del-bierzo
+      - link "Pobladura de pelayo garcia" [ref=e182] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/leon/pobladura-de-pelayo-garcia
+      - link "Viñuela" [ref=e183] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/malaga/vinuela
+      - link "Ortigal el" [ref=e184] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/santa-cruz-de-tenerife/ortigal-el
+      - link "Algodre" [ref=e185] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/zamora/algodre
+      - link "La Alberca de Záncara" [ref=e186] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/cuenca/la-alberca-de-zancara
+      - link "Madrid de las caderechas" [ref=e187] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/burgos/madrid-de-las-caderechas
+      - link "Níjar" [ref=e188] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/almeria/nijar
+      - link "Rioja" [ref=e189] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/almeria/rioja
+      - link "Alamillo el" [ref=e190] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/huelva/alamillo-el
+      - link "Zaldibar" [ref=e191] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/vizcaya/zaldibar
+      - link "Villaflor" [ref=e192] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/avila/villaflor
+      - link "Senra" [ref=e193] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/a-coruna/senra
+      - link "Úbeda" [ref=e194] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/jaen/ubeda
+      - link "Matamala de almazan" [ref=e195] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/soria/matamala-de-almazan
+      - link "Ayerbe" [ref=e196] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/huesca/ayerbe
+      - link "Cobres" [ref=e197] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/pontevedra/cobres
+      - link "Sardineros los" [ref=e198] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/valencia/sardineros-los
+      - link "Sayaton" [ref=e199] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/guadalajara/sayaton
+      - link "Eulate" [ref=e200] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/navarra/eulate
+      - link "Santa maria del rio" [ref=e201] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/leon/santa-maria-del-rio
+      - link "Portillejo" [ref=e202] [cursor=pointer]:
+        - /url: //www.komparing.com/es/precio-gasoil/palencia/portillejo
+  - contentinfo [ref=e203]:
+    - link:
+      - /url: javascript:scroll(0,0)
+    - generic [ref=e204]:
+      - generic [ref=e205]:
+        - link "Acerca de K" [ref=e206] [cursor=pointer]:
+          - /url: //www.komparing.com/es/acercade.php
+        - strong [ref=e207]: ·
+        - link "Aviso Legal" [ref=e208] [cursor=pointer]:
+          - /url: //www.komparing.com/es/legal.php
+        - strong [ref=e209]: ·
+        - link "Política de Cookies" [ref=e210] [cursor=pointer]:
+          - /url: //www.komparing.com/es/cookies.php
+        - strong [ref=e211]: ·
+        - link "Komparing.com Global" [ref=e212] [cursor=pointer]:
+          - /url: //www.komparing.com/index.html?page=global
+      - generic [ref=e214]: Copyright © 2026 Komparing.com
+  - dialog "Komparing.com asks for your consent to use your personal data to:" [active] [ref=e218]:
+    - generic [ref=e220]:
+      - generic [ref=e221]:
+        - img "Welcome to Komparing.com" [ref=e224]
+        - heading "Komparing.com asks for your consent to use your personal data to:" [level=1] [ref=e225]
+      - list [ref=e227]:
+        - listitem [ref=e228]:
+          - img [ref=e231]
+          - generic [ref=e233]: Personalised advertising and content, advertising and content measurement, audience research and services development
+        - listitem [ref=e234]:
+          - img [ref=e237]
+          - generic [ref=e239]: Store and/or access information on a device
+      - button "Learn more" [ref=e240] [cursor=pointer]:
+        - img [ref=e243]
+        - generic [ref=e245]: Learn more
+      - generic [ref=e246]:
+        - paragraph [ref=e247]:
+          - text: Your personal data will be processed and information from your device (cookies, unique identifiers and other device data) may be stored by, accessed by and shared with 211 partners or used specifically by this site. We and our partners may use precise geolocation data.
+          - button "List of partners." [ref=e248] [cursor=pointer]
+        - paragraph [ref=e249]: Some vendors may process your personal data on the basis of legitimate interest, which you can object to by managing your options below. Look for a link at the bottom of this page or in the site menu to manage or withdraw consent in privacy and cookie settings.
+    - generic [ref=e252]:
+      - button "Consent" [ref=e253] [cursor=pointer]:
+        - paragraph [ref=e255]: Consent
+      - button "Manage options" [ref=e256] [cursor=pointer]:
+        - paragraph [ref=e258]: Manage options

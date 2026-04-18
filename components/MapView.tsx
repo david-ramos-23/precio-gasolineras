@@ -1,7 +1,8 @@
 // components/MapView.tsx
 'use client';
 import { useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { ZoomControls } from '@/components/ZoomControls';
 import type { LatLngBounds } from 'leaflet';
 import { useTheme } from 'next-themes';
 import { fixLeafletIcons } from '@/lib/leafletIcons';
@@ -85,7 +86,6 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
 
   return (
     <MapContainer center={center} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
-      <ZoomControl position="topright" />
       <TileLayer
         key={tileUrl}
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CartoDB</a>'
@@ -96,6 +96,7 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
       <MapController center={flyToCenter} />
       <MapEventHandler onCenterChange={onCenterChange} onBoundsChange={onBoundsChange} />
       <UserLocationMarker position={userLocation} />
+      <ZoomControls />
       {stations.map(s => (
         <CircleMarker
           key={s.id}

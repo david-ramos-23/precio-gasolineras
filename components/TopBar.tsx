@@ -1,7 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { Fuel, ChevronDown } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
 import { AuthButton } from './AuthButton';
 import type { FuelType } from '@/lib/types';
 
@@ -10,7 +9,7 @@ interface Props {
   onRadiusChange: (r: number) => void;
   fuel: FuelType;
   onFuelChange: (f: FuelType) => void;
-  onLocationFound: (lat: number, lng: number) => void;
+  onSearchOpen: () => void;
 }
 
 const FUEL_LABELS: Record<FuelType, string> = {
@@ -23,12 +22,9 @@ const FUEL_LABELS: Record<FuelType, string> = {
 
 const FUELS: FuelType[] = ['g95', 'diesel', 'g98', 'glp', 'gnc'];
 
-export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onLocationFound }: Props) {
+export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onSearchOpen }: Props) {
   const [showFuel, setShowFuel] = useState(false);
   const [showRadius, setShowRadius] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searching, setSearching] = useState(false);
   const fuelRef = useRef<HTMLDivElement>(null);
   const radiusRef = useRef<HTMLDivElement>(null);
 
@@ -47,26 +43,6 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
     if (showRadius) document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
   }, [showRadius]);
-
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    setSearching(true);
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1&countrycodes=es`,
-        { headers: { 'Accept-Language': 'es', 'User-Agent': 'precio-gasolineras/1.0' } }
-      );
-      const data = await res.json();
-      if (data.length > 0) {
-        onLocationFound(parseFloat(data[0].lat), parseFloat(data[0].lon));
-        setSearchOpen(false);
-        setSearchQuery('');
-      }
-    } finally {
-      setSearching(false);
-    }
-  }
 
   return (
     <div className="absolute top-3 left-0 right-0 flex justify-center z-[1000] pointer-events-none px-4">
@@ -125,45 +101,17 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
           )}
         </div>
 
-        {/* Search button + inline input */}
-        {searchOpen ? (
-          <form onSubmit={handleSearch} className="flex items-center gap-1">
-            <input
-              autoFocus
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Buscar localidad..."
-              className="text-xs bg-transparent border-b border-[var(--panel-border)] outline-none w-20 text-[var(--foreground)] placeholder:text-[var(--foreground)]/40 pb-0.5"
-            />
-            <button
-              type="submit"
-              disabled={searching}
-              className="text-xs text-[var(--accent)] font-medium cursor-pointer disabled:opacity-50"
-            >
-              {searching ? '…' : 'Ir'}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
-              className="text-xs text-[var(--foreground)]/40 hover:text-[var(--foreground)] cursor-pointer"
-            >
-              ✕
-            </button>
-          </form>
-        ) : (
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="text-[var(--foreground)]/50 hover:text-[var(--foreground)] cursor-pointer"
-            title="Buscar localidad"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-          </button>
-        )}
+        {/* Search button */}
+        <button
+          onClick={onSearchOpen}
+          className="text-[var(--foreground)]/50 hover:text-[var(--foreground)] cursor-pointer"
+          title="Buscar localidad"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </button>
 
-        <ThemeToggle />
         <AuthButton />
       </div>
     </div>

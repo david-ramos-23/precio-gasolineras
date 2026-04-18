@@ -1,0 +1,18 @@
+[     649ms] TagError: adsbygoogle.push() error: No slot size for availableWidth=0
+    at Ro (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:162:364)
+    at Qo (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:161:146)
+    at Yo (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:165:172)
+    at fp (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:181:15)
+    at hp (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:182:342)
+    at ur (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:231:66)
+    at g.client (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:221:47)
+    at Xj.g (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:79:555)
+    at ek (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:80:706)
+    at pr (https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7045124260884686:221:35)
+[    6479ms] [ERROR] Attestation check for Attribution Reporting on https://ad.doubleclick.net failed. @ https://www.komparing.com/es/gasolineras/gasoil:0
+[    6486ms] [ERROR] Attestation check for Shared Storage on https://www.googleadservices.com failed. @ https://www.googleadservices.com/pagead/managed/js/activeview/current/reach_worklet.html:0
+[    6502ms] [ERROR] Attestation check for Shared Storage on https://www.googleadservices.com failed. @ https://www.googleadservices.com/pagead/managed/js/activeview/current/reach_worklet.html:0
+[    6486ms] [ERROR] Attestation check for Shared Storage on https://www.googleadservices.com failed. @ https://www.googleadservices.com/pagead/managed/js/activeview/current/reach_worklet.html:0
+[    6502ms] [ERROR] Attestation check for Shared Storage on https://www.googleadservices.com failed. @ https://www.googleadservices.com/pagead/managed/js/activeview/current/reach_worklet.html:0
+[    6584ms] [ERROR] Attestation check for Attribution Reporting on https://ad.doubleclick.net failed. @ https://www.komparing.com/es/gasolineras/gasoil:0
+[    6801ms] [ERROR] Attestation check for Shared Storage on https://www.googleadservices.com failed. @ https://www.googleadservices.com/pagead/managed/js/activeview/current/reach_worklet.html:0

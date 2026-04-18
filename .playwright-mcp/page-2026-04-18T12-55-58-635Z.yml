@@ -1,0 +1,41 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - generic:
+        - generic:
+          - button
+      - generic:
+        - generic [ref=e5]:
+          - button "Zoom in" [ref=e6] [cursor=pointer]: +
+          - button "Zoom out" [ref=e7] [cursor=pointer]: −
+        - generic [ref=e8]:
+          - link "Leaflet" [ref=e9] [cursor=pointer]:
+            - /url: https://leafletjs.com
+            - img [ref=e10]
+            - text: Leaflet
+          - text: "| ©"
+          - link "OSM" [ref=e14] [cursor=pointer]:
+            - /url: https://www.openstreetmap.org/copyright
+          - text: ©
+          - link "CartoDB" [ref=e15] [cursor=pointer]:
+            - /url: https://carto.com/
+    - button "Centrar en mi ubicación" [ref=e16]:
+      - img [ref=e17]
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - button "G95" [ref=e22] [cursor=pointer]
+        - button "Gasoil" [ref=e23] [cursor=pointer]
+        - button "G98" [ref=e24] [cursor=pointer]
+        - button "GLP" [ref=e25] [cursor=pointer]
+        - button "GNC" [ref=e26] [cursor=pointer]
+      - button "10km" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: 10km
+        - img [ref=e30]
+      - button "Buscar localidad" [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+      - button "Activar tema claro" [ref=e36]:
+        - img [ref=e37]
+    - button "0 gasolineras" [ref=e43] [cursor=pointer]:
+      - img [ref=e44]
+      - text: 0 gasolineras
+  - alert [ref=e46]
