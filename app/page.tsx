@@ -201,7 +201,7 @@ export default function Home() {
 
       {/* Mobile FAB */}
       <button
-        onClick={() => setShowList(v => !v)}
+        onClick={() => { if (showList) { setShowList(false); setSelected(null); } else { setShowList(true); } }}
         className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 bg-[var(--panel)] backdrop-blur-md border border-[var(--panel-border)] text-[var(--foreground)] text-sm font-medium px-5 py-2.5 rounded-full shadow-2xl cursor-pointer transition-colors"
       >
         {showList
