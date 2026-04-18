@@ -207,19 +207,14 @@ export default function Home() {
     const h = parseFloat(sheetRef.current.style.height);
     if (h < 30) {
       closeSheet();
-    } else if (h > 70) {
+    } else {
+      // Any release above 30% → snap to max (aligned with TopBar top)
       const maxPct = getMaxPct();
       sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
       setDetailExpanded(true);
       sheetRef.current.style.height = `${maxPct}%`;
       setPanelBottom(maxPct);
       rootRef.current?.classList.add('panel-expanded');
-    } else {
-      sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
-      setDetailExpanded(false);
-      sheetRef.current.style.height = selected ? '58%' : '65%';
-      setPanelBottom(selected ? 58 : 65);
-      rootRef.current?.classList.remove('panel-expanded');
     }
   }
 
