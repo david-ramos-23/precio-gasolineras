@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Fuel, ChevronDown } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { AuthButton } from './AuthButton';
 import type { FuelType } from '@/lib/types';
 
 interface Props {
@@ -133,6 +134,7 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
         )}
 
         <ThemeToggle />
+        <AuthButton />
       </div>
     </div>
   );
