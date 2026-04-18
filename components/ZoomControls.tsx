@@ -10,7 +10,7 @@ export function ZoomControls({ panelFraction = 0, onRecenter }: { panelFraction?
 
   return (
     <div className="absolute right-3 z-[1000] flex flex-col gap-1 pointer-events-auto"
-      style={{ bottom, transition: 'bottom 0.3s cubic-bezier(0.4,0,0.2,1)' }}>
+      style={{ bottom: `var(--panel-bottom, ${bottom})`, transition: `bottom var(--zoom-td, 0.3s) cubic-bezier(0.4,0,0.2,1)` }}>
       {onRecenter && (
         <button type="button" onClick={onRecenter} aria-label="Mi ubicación" className={BTN}>
           <LocateFixed size={16} />

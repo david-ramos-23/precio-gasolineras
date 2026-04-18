@@ -1,6 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import gsap from 'gsap';
 import { ChevronUp } from 'lucide-react';
 import TopBar from '@/components/TopBar';
@@ -33,6 +33,7 @@ export default function Home() {
   const [stations, setStations] = useState<StationWithPrice[]>([]);
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragZoneRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<StationWithPrice | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
@@ -94,11 +95,27 @@ export default function Home() {
 
   useEffect(() => { setDetailExpanded(false); }, [selected?.id]);
 
+  // Set initial height synchronously before browser paint (prevents flash)
+  useLayoutEffect(() => {
+    if (showList && sheetRef.current) {
+      sheetRef.current.style.height = selected ? '58%' : '65%'; // eslint-disable-line react-hooks/exhaustive-deps
+      sheetRef.current.style.transition = 'none';
+    }
+  }, [showList]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (showList && sheetRef.current) {
       gsap.from(sheetRef.current, { y: '100%', duration: 0.35, ease: 'power3.out' });
     }
   }, [showList]);
+
+  // Drive height via DOM when selected/detailExpanded changes (avoids React re-render conflicts)
+  useLayoutEffect(() => {
+    if (!showList || !sheetRef.current || dragging.current) return;
+    const h = selected ? (detailExpanded ? '96%' : '58%') : '65%';
+    sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+    sheetRef.current.style.height = h;
+  }, [selected?.id, detailExpanded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Touch drag state (refs = no re-renders during drag)
   const dragStartY = useRef(0);
@@ -122,6 +139,7 @@ export default function Home() {
       e.preventDefault();
       const pct = Math.max(15, Math.min(95, dragBaseH.current + (delta / window.innerHeight) * 100));
       sheetRef.current.style.height = `${pct}%`;
+      rootRef.current?.style.setProperty('--panel-bottom', `calc(${pct}% + 12px)`);
     };
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
@@ -131,7 +149,9 @@ export default function Home() {
     dragging.current = true;
     dragMoved.current = false;
     dragStartY.current = e.touches[0].clientY;
-    dragBaseH.current = selected ? (detailExpanded ? 92 : 58) : 58;
+    const h = sheetRef.current ? parseFloat(sheetRef.current.style.height) : NaN;
+    dragBaseH.current = isNaN(h) ? (selected ? (detailExpanded ? 96 : 58) : 65) : h;
+    rootRef.current?.style.setProperty('--zoom-td', '0s');
   }
 
   function closeSheet() {
@@ -159,14 +179,16 @@ export default function Home() {
   function onDragEnd() {
     if (!dragging.current) return;
     dragging.current = false;
-    if (!dragMoved.current || !sheetRef.current) return; // was a tap, not a drag
+    rootRef.current?.style.removeProperty('--panel-bottom');
+    rootRef.current?.style.removeProperty('--zoom-td');
+    if (!dragMoved.current || !sheetRef.current) return;
     sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
     const h = parseFloat(sheetRef.current.style.height);
     if (h < 30) {
       closeSheet();
-    } else if (h > 75) {
+    } else if (h > 70) {
       setDetailExpanded(true);
-      sheetRef.current.style.height = '92%';
+      sheetRef.current.style.height = '96%';
     } else {
       setDetailExpanded(false);
       sheetRef.current.style.height = selected ? '58%' : '65%';
@@ -199,7 +221,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative h-dvh w-dvw overflow-hidden bg-slate-950">
+    <div ref={rootRef} className="relative h-dvh w-dvw overflow-hidden bg-slate-950">
       {/* Full-screen map */}
       <div className="absolute inset-0">
         <MapView
@@ -213,7 +235,7 @@ export default function Home() {
           priceRange={priceRange}
           flyToCenter={flyToCenter}
           sheetFraction={selected ? 0.58 : 0}
-          panelFraction={showList ? (detailExpanded ? 0.92 : 0.58) : 0}
+          panelFraction={showList ? (detailExpanded ? 0.96 : 0.58) : 0}
           onRecenter={handleRecenter}
         />
       </div>
@@ -273,7 +295,7 @@ export default function Home() {
         <div
           ref={sheetRef}
           className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl rounded-t-2xl flex flex-col"
-          style={{ height: selected ? (detailExpanded ? '92%' : '58%') : '58%', transition: 'height 0.3s cubic-bezier(0.4,0,0.2,1)' }}
+          style={{}}
         >
           {/* Drag zone — header only, touch events here */}
           <div
