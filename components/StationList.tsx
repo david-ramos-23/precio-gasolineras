@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import type { StationWithPrice, FuelType } from '@/lib/types';
 
 function DeltaBadge({ delta }: { delta: number | null }) {
@@ -21,9 +21,10 @@ interface Props {
   fuel: FuelType;
   favorites?: string[];
   mobile?: boolean;
+  onClose?: () => void;
 }
 
-export default function StationList({ stations, selectedId, onSelect, fuel, favorites = [], mobile = false }: Props) {
+export default function StationList({ stations, selectedId, onSelect, fuel, favorites = [], mobile = false, onClose }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [sortBy, setSortBy] = useState<'price' | 'distance'>('price');
   const [onlyFavs, setOnlyFavs] = useState(false);
@@ -87,9 +88,13 @@ export default function StationList({ stations, selectedId, onSelect, fuel, favo
               </button>
             </div>
           </div>
-          {!mobile && (
-            <ChevronDown
-              size={16}
+          {mobile && onClose ? (
+            <button type="button" onClick={e => { e.stopPropagation(); onClose(); }}
+              className="p-1 text-[var(--foreground)]/40 hover:text-[var(--foreground)] cursor-pointer transition-colors">
+              <X size={16} />
+            </button>
+          ) : (
+            <ChevronDown size={16}
               className={`text-[var(--foreground)]/50 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`}
             />
           )}

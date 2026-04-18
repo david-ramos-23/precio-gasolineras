@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import gsap from 'gsap';
 import { ChevronUp } from 'lucide-react';
 import TopBar from '@/components/TopBar';
-import { FloatingSearch } from '@/components/FloatingSearch';
 import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
 import { RecenterButton } from '@/components/RecenterButton';
@@ -94,8 +93,6 @@ export default function Home() {
     if (userLocation) setFlyToCenter([...userLocation]);
   };
 
-  const [searchOpen, setSearchOpen] = useState(false);
-
   useEffect(() => { setDetailExpanded(false); }, [selected?.id]);
 
   useEffect(() => {
@@ -140,6 +137,7 @@ export default function Home() {
 
   function closeSheet() {
     if (sheetRef.current) {
+      sheetRef.current.style.transition = 'none';
       gsap.to(sheetRef.current, {
         height: '0%', duration: 0.3, ease: 'power3.in',
         onComplete: () => {
@@ -148,6 +146,15 @@ export default function Home() {
         }
       });
     } else { setShowList(false); setSelected(null); setOpenedFromList(false); }
+  }
+
+  function goBackToList() {
+    if (sheetRef.current) {
+      gsap.to(sheetRef.current, { opacity: 0, duration: 0.1, ease: 'power2.in', onComplete: () => {
+        setSelected(null);
+        gsap.to(sheetRef.current, { opacity: 1, duration: 0.15, ease: 'power2.out' });
+      }});
+    } else { setSelected(null); }
   }
 
   function onDragEnd() {
@@ -207,19 +214,14 @@ export default function Home() {
           priceRange={priceRange}
           flyToCenter={flyToCenter}
           sheetFraction={selected ? 0.58 : 0}
+          panelFraction={showList ? (detailExpanded ? 0.92 : 0.58) : 0}
         />
       </div>
 
       {!showList && <RecenterButton onClick={handleRecenter} />}
 
       {/* TopBar — centered pill at top */}
-      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={f => { setFuel(f); localStorage.setItem('fuel', f); }} onSearchOpen={() => setSearchOpen(true)} />
-      {searchOpen && (
-        <FloatingSearch
-          onClose={() => setSearchOpen(false)}
-          onLocationFound={(lat, lng) => { handleLocationFound(lat, lng); setSearchOpen(false); }}
-        />
-      )}
+      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={f => { setFuel(f); localStorage.setItem('fuel', f); }} onLocationFound={handleLocationFound} />
 
       {/* Price legend — hide on mobile when detail is full-screen */}
       {visiblePrices.length > 0 && (
@@ -282,7 +284,7 @@ export default function Home() {
               <StationDetail
                 station={selected}
                 activeFuel={fuel}
-                onClose={() => openedFromList ? setSelected(null) : closeSheet()}
+                onClose={() => openedFromList ? goBackToList() : closeSheet()}
                 isFavorite={favorites.includes(selected.id)}
                 onToggleFavorite={() => toggleFavorite(selected.id)}
               />
@@ -296,6 +298,7 @@ export default function Home() {
                 fuel={fuel}
                 favorites={favorites}
                 mobile={true}
+                onClose={closeSheet}
               />
             </div>
           )}

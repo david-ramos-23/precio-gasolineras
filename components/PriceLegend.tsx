@@ -12,7 +12,7 @@ export function PriceLegend({ count, minPrice, maxPrice }: Props) {
 
   return (
     <div className="absolute top-[50px] left-0 right-0 flex justify-center z-[999] pointer-events-none">
-      <div className="flex items-center gap-2 bg-[var(--panel)] border border-[var(--panel-border)] backdrop-blur-md rounded-full px-4 py-1 shadow-sm">
+      <div className="flex items-center gap-2 bg-[var(--panel)] border border-[var(--panel-border)] backdrop-blur-md rounded-full px-4 py-1">
         <span
           className="text-[10px] tabular-nums text-[var(--foreground)]/50"
           style={{ fontFamily: 'var(--font-fira-code)' }}

@@ -83,9 +83,10 @@ interface Props {
   flyToCenter?: [number, number] | null;
   favorites?: string[];
   sheetFraction?: number;
+  panelFraction?: number;
 }
 
-export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, onBoundsChange, priceRange, flyToCenter = null, favorites = [], sheetFraction = 0 }: Props) {
+export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, onBoundsChange, priceRange, flyToCenter = null, favorites = [], sheetFraction = 0, panelFraction = 0 }: Props) {
   useEffect(() => { fixLeafletIcons(); }, []);
 
   const { resolvedTheme } = useTheme();
@@ -109,7 +110,7 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
       <MapController center={flyToCenter} />
       <MapEventHandler onCenterChange={onCenterChange} onBoundsChange={onBoundsChange} />
       <UserLocationMarker position={userLocation} />
-      <ZoomControls />
+      <ZoomControls panelFraction={panelFraction} />
       {stations.map(s => (
         <CircleMarker
           key={s.id}

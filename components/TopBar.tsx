@@ -9,46 +9,60 @@ interface Props {
   onRadiusChange: (r: number) => void;
   fuel: FuelType;
   onFuelChange: (f: FuelType) => void;
-  onSearchOpen: () => void;
+  onLocationFound: (lat: number, lng: number) => void;
 }
 
 const FUEL_LABELS: Record<FuelType, string> = {
-  g95: 'G95',
-  diesel: 'Gasoil',
-  g98: 'G98',
-  glp: 'GLP',
-  gnc: 'GNC',
+  g95: 'G95', diesel: 'Gasoil', g98: 'G98', glp: 'GLP', gnc: 'GNC',
 };
-
 const FUELS: FuelType[] = ['g95', 'diesel', 'g98', 'glp', 'gnc'];
 
-export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onSearchOpen }: Props) {
+export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onLocationFound }: Props) {
   const [showFuel, setShowFuel] = useState(false);
   const [showRadius, setShowRadius] = useState(false);
+  const [query, setQuery] = useState('');
+  const [searching, setSearching] = useState(false);
   const fuelRef = useRef<HTMLDivElement>(null);
   const radiusRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function onOutside(e: MouseEvent) {
+    function onOut(e: MouseEvent) {
       if (fuelRef.current && !fuelRef.current.contains(e.target as Node)) setShowFuel(false);
     }
-    if (showFuel) document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
+    if (showFuel) document.addEventListener('mousedown', onOut);
+    return () => document.removeEventListener('mousedown', onOut);
   }, [showFuel]);
 
   useEffect(() => {
-    function onOutside(e: MouseEvent) {
+    function onOut(e: MouseEvent) {
       if (radiusRef.current && !radiusRef.current.contains(e.target as Node)) setShowRadius(false);
     }
-    if (showRadius) document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
+    if (showRadius) document.addEventListener('mousedown', onOut);
+    return () => document.removeEventListener('mousedown', onOut);
   }, [showRadius]);
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!query.trim()) return;
+    setSearching(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=es`,
+        { headers: { 'Accept-Language': 'es', 'User-Agent': 'precio-gasolineras/1.0' } }
+      );
+      const data = await res.json();
+      if (data.length > 0) {
+        onLocationFound(parseFloat(data[0].lat), parseFloat(data[0].lon));
+        setQuery('');
+      }
+    } finally {
+      setSearching(false);
+    }
+  }
 
   return (
     <div className="absolute top-3 left-0 right-0 flex justify-center z-[1000] pointer-events-none px-4">
-      <div className="flex items-center gap-2 rounded-full bg-[var(--panel)] border border-[var(--panel-border)] px-3 py-2 shadow-lg pointer-events-auto backdrop-blur-md">
-        {/* Brand icon */}
-        <Fuel className="w-4 h-4 text-green-400 shrink-0 hidden sm:block" />
+      <div className="flex items-center gap-2 rounded-full bg-[var(--panel)] border border-[var(--panel-border)] px-3 py-2 shadow-lg pointer-events-auto backdrop-blur-md w-full max-w-[360px]">
 
         {/* Fuel dropdown */}
         <div ref={fuelRef} className="relative shrink-0">
@@ -62,15 +76,8 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onS
           {showFuel && (
             <div className="absolute top-9 left-0 bg-[var(--panel)] border border-[var(--panel-border)] rounded-xl shadow-xl overflow-hidden min-w-[96px] z-10">
               {FUELS.map(f => (
-                <button
-                  key={f}
-                  onClick={() => { onFuelChange(f); setShowFuel(false); }}
-                  className={`w-full text-left px-4 py-2 text-xs font-medium cursor-pointer transition-colors ${
-                    fuel === f
-                      ? 'bg-[var(--accent)] text-white'
-                      : 'text-[var(--foreground)]/70 hover:bg-[var(--panel-border)] hover:text-[var(--foreground)]'
-                  }`}
-                >
+                <button key={f} onClick={() => { onFuelChange(f); setShowFuel(false); }}
+                  className={`w-full text-left px-4 py-2 text-xs font-medium cursor-pointer transition-colors ${fuel === f ? 'bg-[var(--accent)] text-white' : 'text-[var(--foreground)]/70 hover:bg-[var(--panel-border)]'}`}>
                   {FUEL_LABELS[f]}
                 </button>
               ))}
@@ -78,39 +85,40 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onS
           )}
         </div>
 
-        {/* Radius selector */}
-        <div ref={radiusRef} className="relative">
-          <button
-            onClick={() => setShowRadius(v => !v)}
-            className="flex items-center gap-1 text-xs font-medium text-[var(--foreground)]/70 hover:text-[var(--foreground)] cursor-pointer"
-          >
+        {/* Inline search — fills available space */}
+        <form onSubmit={handleSearch} className="flex-1 min-w-0 flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0 text-[var(--foreground)]/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Buscar localidad..."
+            className="w-full bg-transparent text-xs text-[var(--foreground)] placeholder:text-[var(--foreground)]/30 outline-none"
+          />
+          {searching && <span className="text-[10px] text-[var(--foreground)]/40 shrink-0">…</span>}
+        </form>
+
+        {/* Divider */}
+        <div className="w-px h-4 bg-[var(--panel-border)] shrink-0" />
+
+        {/* Radius */}
+        <div ref={radiusRef} className="relative shrink-0">
+          <button onClick={() => setShowRadius(v => !v)}
+            className="flex items-center gap-1 text-xs font-medium text-[var(--foreground)]/70 hover:text-[var(--foreground)] cursor-pointer">
             <span style={{ fontFamily: 'var(--font-fira-code)' }}>{radius}km</span>
             <ChevronDown className="w-3 h-3" />
           </button>
           {showRadius && (
-            <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-[var(--panel)] border border-[var(--panel-border)] rounded-xl p-3 shadow-xl w-48">
-              <input
-                type="range" min={1} max={50} value={radius}
+            <div className="absolute top-8 right-0 bg-[var(--panel)] border border-[var(--panel-border)] rounded-xl p-3 shadow-xl w-48 z-10">
+              <input type="range" min={1} max={50} value={radius}
                 onChange={e => onRadiusChange(Number(e.target.value))}
-                className="w-full accent-[var(--accent)]"
-              />
-              <p className="text-center text-xs mt-1" style={{ fontFamily: 'var(--font-fira-code)' }}>
-                {radius} km
-              </p>
+                className="w-full accent-[var(--accent)]" />
+              <p className="text-center text-xs mt-1" style={{ fontFamily: 'var(--font-fira-code)' }}>{radius} km</p>
             </div>
           )}
         </div>
-
-        {/* Search button */}
-        <button
-          onClick={onSearchOpen}
-          className="text-[var(--foreground)]/50 hover:text-[var(--foreground)] cursor-pointer"
-          title="Buscar localidad"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-        </button>
 
         <AuthButton />
       </div>
