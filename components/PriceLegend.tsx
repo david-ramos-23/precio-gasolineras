@@ -1,4 +1,5 @@
 'use client';
+import { STOPS } from '@/lib/priceColor';
 
 interface Props {
   count: number;
@@ -28,8 +29,7 @@ export function PriceLegend({ count, minPrice, maxPrice }: Props) {
           <div
             className="w-20 h-2 rounded-full"
             style={{
-              background:
-                'linear-gradient(to right, #22c55e, #84cc16, #eab308, #f97316, #ef4444)',
+              background: `linear-gradient(to right, ${STOPS.join(', ')})`,
             }}
           />
           <span

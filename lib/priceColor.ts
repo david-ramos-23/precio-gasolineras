@@ -1,5 +1,5 @@
 // 5-stop gradient: green → lime → yellow → orange → red
-const STOPS = ['#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444'] as const;
+export const STOPS = ['#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444'] as const;
 
 export function interpolateHex(a: string, b: string, t: number): string {
   const parse = (h: string) => [
