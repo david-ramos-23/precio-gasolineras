@@ -53,10 +53,10 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
     <div className="absolute top-3 left-0 right-0 flex justify-center z-[1000] pointer-events-none px-4">
       <div className="flex items-center gap-2 rounded-full bg-[var(--panel)] border border-[var(--panel-border)] px-3 py-2 shadow-lg pointer-events-auto backdrop-blur-md">
         {/* Brand icon */}
-        <Fuel className="w-4 h-4 text-green-400 shrink-0" />
+        <Fuel className="w-4 h-4 text-green-400 shrink-0 hidden sm:block" />
 
         {/* Fuel toggle — horizontally scrollable on mobile */}
-        <div className="flex items-center bg-black/10 rounded-full p-0.5 overflow-x-auto max-w-[220px] sm:max-w-none scrollbar-none">
+        <div className="flex items-center bg-black/10 rounded-full p-0.5 overflow-x-auto max-w-[180px] sm:max-w-none scrollbar-none shrink-0">
           {FUELS.map(f => (
             <button
               key={f}
