@@ -6,7 +6,6 @@ import { ChevronUp } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
-import { RecenterButton } from '@/components/RecenterButton';
 import { PriceLegend } from '@/components/PriceLegend';
 import type { StationWithPrice, FuelType } from '@/lib/types';
 import { useSession, signIn } from 'next-auth/react';
@@ -215,17 +214,23 @@ export default function Home() {
           flyToCenter={flyToCenter}
           sheetFraction={selected ? 0.58 : 0}
           panelFraction={showList ? (detailExpanded ? 0.92 : 0.58) : 0}
+          onRecenter={handleRecenter}
         />
       </div>
 
-      {!showList && <RecenterButton onClick={handleRecenter} />}
-
-      {/* TopBar — centered pill at top */}
-      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={f => { setFuel(f); localStorage.setItem('fuel', f); }} onLocationFound={handleLocationFound} />
+      {/* TopBar — centered pill at top, legend fused inside */}
+      <TopBar
+        radius={radius} onRadiusChange={setRadius}
+        fuel={fuel} onFuelChange={f => { setFuel(f); localStorage.setItem('fuel', f); }}
+        onLocationFound={handleLocationFound}
+        legendCount={visibleStations.length}
+        legendMin={priceRange.min}
+        legendMax={priceRange.max}
+      />
 
       {/* Price legend — hide on mobile when detail is full-screen */}
       {visiblePrices.length > 0 && (
-        <div className={selected ? 'hidden md:block' : ''}>
+        <div className="hidden md:block">
           <PriceLegend
             count={visibleStations.length}
             minPrice={priceRange.min}
