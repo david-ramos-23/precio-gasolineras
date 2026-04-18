@@ -9,6 +9,15 @@ import { RecenterButton } from '@/components/RecenterButton';
 import { PriceLegend } from '@/components/PriceLegend';
 import type { StationWithPrice, FuelType } from '@/lib/types';
 import { useSession, signIn } from 'next-auth/react';
+
+const LOCAL_FAV_KEY = 'gasolineras_favorites';
+function loadLocalFavs(): string[] {
+  if (typeof window === 'undefined') return [];
+  try { return JSON.parse(localStorage.getItem(LOCAL_FAV_KEY) ?? '[]'); } catch { return []; }
+}
+function saveLocalFavs(ids: string[]) {
+  localStorage.setItem(LOCAL_FAV_KEY, JSON.stringify(ids));
+}
 import type { LatLngBounds } from 'leaflet';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -52,7 +61,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!userId) { setFavorites([]); return; }
+    if (!userId) {
+      setFavorites(loadLocalFavs());
+      return;
+    }
     fetch('/api/favorites').then(r => r.json()).then((data: Array<{ stationId: string }>) =>
       setFavorites(data.map(f => f.stationId))
     );
@@ -80,7 +92,12 @@ export default function Home() {
 
   const toggleFavorite = async (stationId: string) => {
     if (!userId) {
-      signIn('google');
+      const current = loadLocalFavs();
+      const updated = current.includes(stationId)
+        ? current.filter(id => id !== stationId)
+        : [...current, stationId];
+      saveLocalFavs(updated);
+      setFavorites(updated);
       return;
     }
     if (favorites.includes(stationId)) {
@@ -98,6 +115,7 @@ export default function Home() {
       {/* Full-screen map */}
       <div className="absolute inset-0">
         <MapView
+          favorites={favorites}
           stations={stations}
           selectedStation={selected}
           onSelectStation={s => { setSelected(s); setShowList(true); }}
@@ -123,10 +141,19 @@ export default function Home() {
         />
       )}
 
+      {/* Banner — local favorites warning */}
+      {!userId && favorites.length > 0 && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[1001] bg-amber-500/90 text-slate-950 text-xs font-medium px-4 py-1.5 rounded-full shadow-lg backdrop-blur-sm whitespace-nowrap">
+          ★ Favoritos temporales —{' '}
+          <button onClick={() => signIn('google')} className="underline cursor-pointer font-bold">inicia sesión</button>
+          {' '}para guardarlos
+        </div>
+      )}
+
       {/* StationList — floating card bottom-left (desktop only) */}
       {stations.length > 0 && (
         <div className="absolute bottom-4 left-4 z-[1000] hidden md:block">
-          <StationList stations={stations} selectedId={selected?.id ?? null} onSelect={s => setSelected(s)} fuel={fuel} />
+          <StationList stations={stations} selectedId={selected?.id ?? null} onSelect={s => setSelected(s)} fuel={fuel} favorites={favorites} />
         </div>
       )}
 
@@ -160,7 +187,7 @@ export default function Home() {
             />
           ) : (
             <div className="flex flex-col h-full pb-20">
-              <StationList stations={stations} selectedId={null} onSelect={s => { setSelected(s); }} fuel={fuel} />
+              <StationList stations={stations} selectedId={null} onSelect={s => { setSelected(s); }} fuel={fuel} favorites={favorites} />
             </div>
           )}
         </div>
