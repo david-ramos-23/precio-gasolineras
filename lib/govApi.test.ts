@@ -12,7 +12,7 @@ const MOCK_API_RESPONSE = {
       Municipio: 'Madrid',
       Provincia: 'MADRID',
       Latitud: '40,416775',
-      Longitud: '-3,703790',
+      'Longitud (WGS84)': '-3,703790',
       'Precio Gasolina 95 E5': '1,499',
       'Precio Gasoleo A': '1,439',
     },
@@ -24,7 +24,7 @@ const MOCK_API_RESPONSE = {
       Municipio: 'Barcelona',
       Provincia: 'BARCELONA',
       Latitud: '41,385064',
-      Longitud: '2,173403',
+      'Longitud (WGS84)': '2,173403',
       'Precio Gasolina 95 E5': '',    // empty = no price
       'Precio Gasoleo A': '1,459',
     },
