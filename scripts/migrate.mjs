@@ -12,6 +12,17 @@ const sql = neon(url);
 
 const MIGRATIONS = [
   ['001_add_venta_restringida', () => sql`ALTER TABLE stations ADD COLUMN IF NOT EXISTS venta_restringida boolean NOT NULL DEFAULT false`],
+  ['002_multi_user_favorites', async () => {
+    await sql`DROP TABLE IF EXISTS favorites`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS favorites (
+        user_id    TEXT NOT NULL,
+        station_id TEXT NOT NULL REFERENCES stations(id),
+        label      TEXT NOT NULL DEFAULT '',
+        PRIMARY KEY (user_id, station_id)
+      )
+    `;
+  }],
 ];
 
 for (const [name, run] of MIGRATIONS) {
