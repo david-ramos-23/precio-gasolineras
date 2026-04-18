@@ -112,7 +112,7 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
               <button
                 key={d}
                 onClick={() => setDays(d)}
-                className={`text-xs px-2.5 py-1 rounded-lg transition-all duration-150 cursor-pointer ${
+                className={`text-xs px-3 py-2 min-h-[36px] rounded-lg transition-all duration-150 cursor-pointer ${
                   days === d ? 'bg-[var(--accent)]/20 text-[var(--accent)] font-medium' : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
                 }`}
               >

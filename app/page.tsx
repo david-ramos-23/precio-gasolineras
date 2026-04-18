@@ -132,13 +132,15 @@ export default function Home() {
       {/* TopBar — centered pill at top */}
       <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} onLocationFound={handleLocationFound} />
 
-      {/* Price legend — centered below TopBar */}
+      {/* Price legend — hide on mobile when detail is full-screen */}
       {visiblePrices.length > 0 && (
-        <PriceLegend
-          count={visibleStations.length}
-          minPrice={priceRange.min}
-          maxPrice={priceRange.max}
-        />
+        <div className={selected ? 'hidden md:block' : ''}>
+          <PriceLegend
+            count={visibleStations.length}
+            minPrice={priceRange.min}
+            maxPrice={priceRange.max}
+          />
+        </div>
       )}
 
       {/* Banner — local favorites warning */}
@@ -172,19 +174,23 @@ export default function Home() {
 
       {/* Mobile bottom sheet */}
       {showList && (
-        <div className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg rounded-t-2xl border-t border-[var(--panel-border)] shadow-2xl"
+        <div className={`md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl ${selected ? '' : 'rounded-t-2xl'}`}
           style={{ height: selected ? '100%' : '65%' }}>
-          <div className="flex justify-center pt-2 pb-1">
-            <div className="w-8 h-1 bg-[var(--foreground)]/20 rounded-full" />
-          </div>
+          {!selected && (
+            <div className="flex justify-center pt-2 pb-1">
+              <div className="w-8 h-1 bg-[var(--foreground)]/20 rounded-full" />
+            </div>
+          )}
           {selected ? (
-            <StationDetail
-              station={selected}
-              activeFuel={fuel}
-              onClose={() => { setSelected(null); }}
-              isFavorite={favorites.includes(selected.id)}
-              onToggleFavorite={() => toggleFavorite(selected.id)}
-            />
+            <div className="flex flex-col h-full pt-[68px]">
+              <StationDetail
+                station={selected}
+                activeFuel={fuel}
+                onClose={() => { setSelected(null); }}
+                isFavorite={favorites.includes(selected.id)}
+                onToggleFavorite={() => toggleFavorite(selected.id)}
+              />
+            </div>
           ) : (
             <div className="flex flex-col h-full pb-20">
               <StationList stations={stations} selectedId={null} onSelect={s => { setSelected(s); }} fuel={fuel} favorites={favorites} />
