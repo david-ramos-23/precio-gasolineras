@@ -8,6 +8,7 @@ import StationDetail from '@/components/StationDetail';
 import { RecenterButton } from '@/components/RecenterButton';
 import { PriceLegend } from '@/components/PriceLegend';
 import type { StationWithPrice, FuelType } from '@/lib/types';
+import { useSession, signIn } from 'next-auth/react';
 import type { LatLngBounds } from 'leaflet';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -23,6 +24,8 @@ export default function Home() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showList, setShowList] = useState(false);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? null;
 
   const visibleStations = useMemo(
     () => bounds ? stations.filter(s => bounds.contains({ lat: s.lat, lng: s.lng })) : stations,
@@ -49,10 +52,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!userId) { setFavorites([]); return; }
     fetch('/api/favorites').then(r => r.json()).then((data: Array<{ stationId: string }>) =>
       setFavorites(data.map(f => f.stationId))
     );
-  }, []);
+  }, [userId]);
 
   const fetchStations = useCallback(async () => {
     const loc = mapCenter ?? userLocation;
@@ -75,6 +79,10 @@ export default function Home() {
   }, []);
 
   const toggleFavorite = async (stationId: string) => {
+    if (!userId) {
+      signIn('google');
+      return;
+    }
     if (favorites.includes(stationId)) {
       await fetch('/api/favorites', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stationId }) });
       setFavorites(f => f.filter(id => id !== stationId));
