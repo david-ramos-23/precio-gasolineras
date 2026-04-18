@@ -1,27 +1,37 @@
 // components/MapView.tsx
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
+import type { LatLngBounds } from 'leaflet';
 import { useTheme } from 'next-themes';
 import { fixLeafletIcons } from '@/lib/leafletIcons';
+import { priceColor } from '@/lib/priceColor';
 import type { StationWithPrice } from '@/lib/types';
 import { UserLocationMarker } from '@/components/UserLocationMarker';
 
-function priceColor(price: number, min: number, max: number): string {
-  if (max === min) return '#f59e0b';
-  const ratio = (price - min) / (max - min);
-  if (ratio < 0.33) return '#22c55e';
-  if (ratio < 0.67) return '#f59e0b';
-  return '#ef4444';
-}
+function MapEventHandler({
+  onCenterChange,
+  onBoundsChange,
+}: {
+  onCenterChange: (center: [number, number]) => void;
+  onBoundsChange: (bounds: LatLngBounds) => void;
+}) {
+  const map = useMap();
 
-function MapEventHandler({ onCenterChange }: { onCenterChange: (center: [number, number]) => void }) {
+  const emit = useCallback(() => {
+    const c = map.getCenter();
+    onCenterChange([c.lat, c.lng]);
+    onBoundsChange(map.getBounds());
+  }, [map, onCenterChange, onBoundsChange]);
+
   useMapEvents({
-    moveend(e) {
-      const c = e.target.getCenter();
-      onCenterChange([c.lat, c.lng]);
-    },
+    moveend: emit,
+    zoomend: emit,
   });
+
+  // Emit once on mount so page.tsx has bounds before the first pan
+  useEffect(() => { emit(); }, [emit]);
+
   return null;
 }
 
@@ -55,10 +65,12 @@ interface Props {
   onSelectStation: (s: StationWithPrice) => void;
   userLocation: [number, number] | null;
   onCenterChange: (center: [number, number]) => void;
+  onBoundsChange: (bounds: LatLngBounds) => void;
+  priceRange: { min: number; max: number };
   flyToCenter?: [number, number] | null;
 }
 
-export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, flyToCenter = null }: Props) {
+export default function MapView({ stations, selectedStation, onSelectStation, userLocation, onCenterChange, onBoundsChange, priceRange, flyToCenter = null }: Props) {
   useEffect(() => { fixLeafletIcons(); }, []);
 
   const { resolvedTheme } = useTheme();
@@ -66,9 +78,7 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
     ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
-  const prices = stations.map(s => s.price).filter((p): p is number => p !== null);
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  const { min: minPrice, max: maxPrice } = priceRange;
 
   const center: [number, number] = userLocation ?? [40.4168, -3.7038];
 
@@ -83,7 +93,7 @@ export default function MapView({ stations, selectedStation, onSelectStation, us
       <FlyTo station={selectedStation} />
       <FlyToUser location={userLocation} />
       <MapController center={flyToCenter} />
-      <MapEventHandler onCenterChange={onCenterChange} />
+      <MapEventHandler onCenterChange={onCenterChange} onBoundsChange={onBoundsChange} />
       <UserLocationMarker position={userLocation} />
       {stations.map(s => (
         <CircleMarker
