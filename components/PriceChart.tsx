@@ -2,7 +2,7 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface Snapshot { price: number; capturedAt: string }
-interface Props { data: Snapshot[]; fuel: 'g95' | 'diesel' }
+interface Props { data: Snapshot[]; fuel: string }
 
 export default function PriceChart({ data }: Props) {
   if (!data.length) return (

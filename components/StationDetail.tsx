@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react';
 import { X, Star, MapPin, Navigation } from 'lucide-react';
 import PriceChart from './PriceChart';
-import type { StationWithPrice } from '@/lib/types';
+import type { StationWithPrice, FuelType } from '@/lib/types';
 
 interface Props {
   station: StationWithPrice;
-  activeFuel: 'g95' | 'diesel';
+  activeFuel: FuelType;
   onClose: () => void;
   isFavorite: boolean;
   onToggleFavorite: () => void;
@@ -33,6 +33,12 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-semibold text-[var(--foreground)] truncate">{station.name}</h2>
+            {station.ventaRestringida && (
+              <div className="flex items-center gap-1.5 mt-1 text-xs text-orange-400">
+                <span>🔒</span>
+                <span>Venta restringida (solo socios/cooperativa)</span>
+              </div>
+            )}
             <div className="flex items-center gap-1 mt-1">
               <MapPin className="w-3 h-3 text-[var(--foreground)]/50 shrink-0" />
               <p className="text-xs text-[var(--foreground)]/50 truncate">{station.address}</p>
@@ -67,7 +73,9 @@ export default function StationDetail({ station, activeFuel, onClose, isFavorite
       <div className="px-4 py-4 border-b border-[var(--panel-border)] shrink-0">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-[var(--foreground)]/50 mb-1">{activeFuel === 'g95' ? 'Gasolina 95 E5' : 'Gasóleo A'}</p>
+            <p className="text-xs text-[var(--foreground)]/50 mb-1">
+              {{ g95: 'Gasolina 95 E5', diesel: 'Gasóleo A', g98: 'Gasolina 98 E5', glp: 'GLP', gnc: 'GNC' }[activeFuel]}
+            </p>
             <span className="text-3xl font-bold text-[var(--accent)] tabular-nums" style={{ fontFamily: 'var(--font-fira-code)' }}>
               {station.price?.toFixed(3) ?? '—'}
             </span>

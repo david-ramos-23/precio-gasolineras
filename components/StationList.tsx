@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import type { StationWithPrice } from '@/lib/types';
+import type { StationWithPrice, FuelType } from '@/lib/types';
 
 function DeltaBadge({ delta }: { delta: number | null }) {
   if (delta === null || Math.abs(delta) < 0.0005) return null;
@@ -18,7 +18,7 @@ interface Props {
   stations: StationWithPrice[];
   selectedId: string | null;
   onSelect: (s: StationWithPrice) => void;
-  fuel: 'g95' | 'diesel';
+  fuel: FuelType;
 }
 
 export default function StationList({ stations, selectedId, onSelect, fuel }: Props) {
@@ -103,7 +103,17 @@ export default function StationList({ stations, selectedId, onSelect, fuel }: Pr
                   <span className="text-xs text-[var(--foreground)]/30 w-5 text-right shrink-0 tabular-nums"
                     style={{ fontFamily: 'var(--font-fira-code)' }}>{i + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[var(--foreground)] truncate">{s.name}</p>
+                    <p className="text-sm font-medium text-[var(--foreground)] truncate flex items-center gap-1">
+                      <span className="truncate">{s.name}</span>
+                      {s.ventaRestringida && (
+                        <span
+                          className="shrink-0 text-[9px] font-bold px-1 py-0.5 rounded bg-orange-500/20 text-orange-400 leading-none"
+                          title="Venta restringida — solo socios"
+                        >
+                          VR
+                        </span>
+                      )}
+                    </p>
                     {s.distanceKm != null && (
                       <p className="text-xs text-[var(--foreground)]/40 tabular-nums" style={{ fontFamily: 'var(--font-fira-code)' }}>
                         {s.distanceKm.toFixed(1)} km
