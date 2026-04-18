@@ -106,27 +106,37 @@ export default function Home() {
   const dragStartY = useRef(0);
   const dragBaseH = useRef(0);
   const dragging = useRef(false);
-  const handleRef = useRef<HTMLDivElement>(null);
+  const dragMoved = useRef(false);
 
+  // Re-attach passive touchmove listener whenever sheet mounts (showList=true)
   useEffect(() => {
-    const el = handleRef.current;
+    if (!showList) return;
+    const el = sheetRef.current;
     if (!el) return;
     const onMove = (e: TouchEvent) => {
       if (!dragging.current || !sheetRef.current) return;
-      e.preventDefault();
       const delta = dragStartY.current - e.touches[0].clientY;
+      if (!dragMoved.current && Math.abs(delta) < 8) return;
+      if (!dragMoved.current) {
+        dragMoved.current = true;
+        sheetRef.current.style.transition = 'none';
+      }
+      e.preventDefault();
       const pct = Math.max(15, Math.min(95, dragBaseH.current + (delta / window.innerHeight) * 100));
       sheetRef.current.style.height = `${pct}%`;
     };
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
-  }, []);
+  }, [showList]);
 
   function onDragStart(e: React.TouchEvent) {
+    // Skip drag if touching an interactive element
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, textarea')) return;
     dragging.current = true;
+    dragMoved.current = false;
     dragStartY.current = e.touches[0].clientY;
     dragBaseH.current = selected ? (detailExpanded ? 92 : 58) : 65;
-    if (sheetRef.current) sheetRef.current.style.transition = 'none';
   }
 
   function closeSheet() {
@@ -142,8 +152,9 @@ export default function Home() {
   }
 
   function onDragEnd() {
-    if (!dragging.current || !sheetRef.current) return;
+    if (!dragging.current) return;
     dragging.current = false;
+    if (!dragMoved.current || !sheetRef.current) return; // was a tap, not a drag
     sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
     const h = parseFloat(sheetRef.current.style.height);
     if (h < 30) {
@@ -257,14 +268,11 @@ export default function Home() {
           ref={sheetRef}
           className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl rounded-t-2xl"
           style={{ height: selected ? (detailExpanded ? '92%' : '58%') : '65%', transition: 'height 0.3s cubic-bezier(0.4,0,0.2,1)' }}
+          onTouchStart={onDragStart}
+          onTouchEnd={onDragEnd}
         >
-          {/* Drag handle */}
-          <div
-            ref={handleRef}
-            className="flex justify-center py-3 shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
-            onTouchStart={onDragStart}
-            onTouchEnd={onDragEnd}
-          >
+          {/* Visual drag handle */}
+          <div className="flex justify-center py-3 shrink-0 pointer-events-none select-none">
             <div className="w-10 h-1 bg-[var(--foreground)]/20 rounded-full" />
           </div>
           {selected ? (
