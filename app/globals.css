@@ -34,6 +34,13 @@ body {
 }
 
 .leaflet-container { background: var(--background); }
+
+/* Push zoom controls below TopBar on mobile */
+@media (max-width: 639px) {
+  .leaflet-top.leaflet-right {
+    top: 68px;
+  }
+}
 .dark .leaflet-container { filter: brightness(0.9); }
 
 /* Custom scrollbar */

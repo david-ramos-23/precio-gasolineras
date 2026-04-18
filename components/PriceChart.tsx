@@ -20,7 +20,7 @@ export default function PriceChart({ data }: Props) {
   const pad = (max - min) * 0.15 || 0.05;
 
   return (
-    <ResponsiveContainer width="100%" height={100}>
+    <ResponsiveContainer width="100%" height={200}>
       <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
         <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#475569' }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
