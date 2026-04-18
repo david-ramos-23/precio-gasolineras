@@ -7,6 +7,7 @@ import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
 import { RecenterButton } from '@/components/RecenterButton';
 import type { StationWithPrice } from '@/lib/types';
+import type { LatLngBounds } from 'leaflet';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -20,6 +21,19 @@ export default function Home() {
   const [flyToCenter, setFlyToCenter] = useState<[number, number] | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showList, setShowList] = useState(false);
+  const [bounds, setBounds] = useState<LatLngBounds | null>(null);
+
+  const visibleStations = bounds
+    ? stations.filter(s => bounds.contains({ lat: s.lat, lng: s.lng }))
+    : stations;
+
+  const visiblePrices = visibleStations
+    .map(s => s.price)
+    .filter((p): p is number => p !== null);
+
+  const priceRange = visiblePrices.length > 0
+    ? { min: Math.min(...visiblePrices), max: Math.max(...visiblePrices) }
+    : { min: 0, max: 0 };
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -70,6 +84,8 @@ export default function Home() {
           onSelectStation={s => { setSelected(s); setShowList(true); }}
           userLocation={userLocation}
           onCenterChange={setMapCenter}
+          onBoundsChange={setBounds}
+          priceRange={priceRange}
           flyToCenter={flyToCenter}
         />
       </div>
