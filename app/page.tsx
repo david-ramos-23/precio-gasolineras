@@ -172,10 +172,10 @@ export default function Home() {
 
       {/* Mobile bottom sheet */}
       {showList && (
-        <div className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-slate-950/98 backdrop-blur-lg rounded-t-2xl border-t border-slate-800/60 shadow-2xl"
+        <div className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg rounded-t-2xl border-t border-[var(--panel-border)] shadow-2xl"
           style={{ height: selected ? '100%' : '65%' }}>
           <div className="flex justify-center pt-2 pb-1">
-            <div className="w-8 h-1 bg-slate-700 rounded-full" />
+            <div className="w-8 h-1 bg-[var(--foreground)]/20 rounded-full" />
           </div>
           {selected ? (
             <StationDetail
@@ -196,7 +196,7 @@ export default function Home() {
       {/* Mobile FAB */}
       <button
         onClick={() => setShowList(v => !v)}
-        className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 bg-slate-900/95 backdrop-blur-md border border-slate-700/60 text-slate-100 text-sm font-medium px-5 py-2.5 rounded-full shadow-2xl cursor-pointer hover:bg-slate-800 transition-colors"
+        className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 bg-[var(--panel)] backdrop-blur-md border border-[var(--panel-border)] text-[var(--foreground)] text-sm font-medium px-5 py-2.5 rounded-full shadow-2xl cursor-pointer transition-colors"
       >
         {showList
           ? <><ChevronDown className="w-4 h-4 text-slate-400" /> Cerrar</>

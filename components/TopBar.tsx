@@ -30,6 +30,7 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const fuelRef = useRef<HTMLDivElement>(null);
+  const radiusRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onOutside(e: MouseEvent) {
@@ -38,6 +39,14 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
     if (showFuel) document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
   }, [showFuel]);
+
+  useEffect(() => {
+    function onOutside(e: MouseEvent) {
+      if (radiusRef.current && !radiusRef.current.contains(e.target as Node)) setShowRadius(false);
+    }
+    if (showRadius) document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, [showRadius]);
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -94,7 +103,7 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
         </div>
 
         {/* Radius selector */}
-        <div className="relative">
+        <div ref={radiusRef} className="relative">
           <button
             onClick={() => setShowRadius(v => !v)}
             className="flex items-center gap-1 text-xs font-medium text-[var(--foreground)]/70 hover:text-[var(--foreground)] cursor-pointer"
@@ -125,7 +134,7 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Buscar localidad..."
-              className="text-xs bg-transparent border-b border-[var(--panel-border)] outline-none w-32 text-[var(--foreground)] placeholder:text-[var(--foreground)]/40 pb-0.5"
+              className="text-xs bg-transparent border-b border-[var(--panel-border)] outline-none w-20 text-[var(--foreground)] placeholder:text-[var(--foreground)]/40 pb-0.5"
             />
             <button
               type="submit"
