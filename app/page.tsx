@@ -31,8 +31,10 @@ export default function Home() {
     return (localStorage.getItem('fuel') as FuelType) ?? 'g95';
   });
   const [detailExpanded, setDetailExpanded] = useState(false);
+  const [openedFromList, setOpenedFromList] = useState(false);
   const [stations, setStations] = useState<StationWithPrice[]>([]);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const dragZoneRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<StationWithPrice | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
@@ -108,10 +110,10 @@ export default function Home() {
   const dragging = useRef(false);
   const dragMoved = useRef(false);
 
-  // Re-attach passive touchmove listener whenever sheet mounts (showList=true)
+  // Attach passive touchmove on drag zone only
   useEffect(() => {
     if (!showList) return;
-    const el = sheetRef.current;
+    const el = dragZoneRef.current;
     if (!el) return;
     const onMove = (e: TouchEvent) => {
       if (!dragging.current || !sheetRef.current) return;
@@ -130,25 +132,22 @@ export default function Home() {
   }, [showList]);
 
   function onDragStart(e: React.TouchEvent) {
-    // Skip drag if touching an interactive element
-    const target = e.target as HTMLElement;
-    if (target.closest('button, a, input, select, textarea')) return;
     dragging.current = true;
     dragMoved.current = false;
     dragStartY.current = e.touches[0].clientY;
-    dragBaseH.current = selected ? (detailExpanded ? 92 : 58) : 65;
+    dragBaseH.current = selected ? (detailExpanded ? 92 : 58) : 58;
   }
 
   function closeSheet() {
     if (sheetRef.current) {
       gsap.to(sheetRef.current, {
-        y: '100%', duration: 0.3, ease: 'power3.in',
+        height: '0%', duration: 0.3, ease: 'power3.in',
         onComplete: () => {
-          if (sheetRef.current) { sheetRef.current.style.transform = ''; sheetRef.current.style.height = ''; }
-          setShowList(false); setSelected(null);
+          if (sheetRef.current) sheetRef.current.style.height = '';
+          setShowList(false); setSelected(null); setOpenedFromList(false);
         }
       });
-    } else { setShowList(false); setSelected(null); }
+    } else { setShowList(false); setSelected(null); setOpenedFromList(false); }
   }
 
   function onDragEnd() {
@@ -201,7 +200,7 @@ export default function Home() {
           favorites={favorites}
           stations={stations}
           selectedStation={selected}
-          onSelectStation={s => { setSelected(s); setShowList(true); }}
+          onSelectStation={s => { setSelected(s); setShowList(true); setOpenedFromList(false); }}
           userLocation={userLocation}
           onCenterChange={setMapCenter}
           onBoundsChange={setBounds}
@@ -266,28 +265,38 @@ export default function Home() {
       {showList && (
         <div
           ref={sheetRef}
-          className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl rounded-t-2xl"
-          style={{ height: selected ? (detailExpanded ? '92%' : '58%') : '65%', transition: 'height 0.3s cubic-bezier(0.4,0,0.2,1)' }}
-          onTouchStart={onDragStart}
-          onTouchEnd={onDragEnd}
+          className="md:hidden absolute bottom-0 left-0 right-0 z-[900] bg-[var(--panel)] backdrop-blur-lg border-t border-[var(--panel-border)] shadow-2xl rounded-t-2xl flex flex-col"
+          style={{ height: selected ? (detailExpanded ? '92%' : '58%') : '58%', transition: 'height 0.3s cubic-bezier(0.4,0,0.2,1)' }}
         >
-          {/* Visual drag handle */}
-          <div className="flex justify-center py-3 shrink-0 pointer-events-none select-none">
+          {/* Drag zone — header only, touch events here */}
+          <div
+            ref={dragZoneRef}
+            className="flex justify-center py-3 shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
+            onTouchStart={onDragStart}
+            onTouchEnd={onDragEnd}
+          >
             <div className="w-10 h-1 bg-[var(--foreground)]/20 rounded-full" />
           </div>
           {selected ? (
-            <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex flex-col flex-1 overflow-hidden">
               <StationDetail
                 station={selected}
                 activeFuel={fuel}
-                onClose={() => { setSelected(null); }}
+                onClose={() => openedFromList ? setSelected(null) : closeSheet()}
                 isFavorite={favorites.includes(selected.id)}
                 onToggleFavorite={() => toggleFavorite(selected.id)}
               />
             </div>
           ) : (
-            <div className="flex flex-col h-full pb-16">
-              <StationList stations={stations} selectedId={null} onSelect={s => { setSelected(s); }} fuel={fuel} favorites={favorites} mobile={true} />
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <StationList
+                stations={stations}
+                selectedId={null}
+                onSelect={s => { setSelected(s); setOpenedFromList(true); }}
+                fuel={fuel}
+                favorites={favorites}
+                mobile={true}
+              />
             </div>
           )}
         </div>
