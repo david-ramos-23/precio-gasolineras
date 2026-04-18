@@ -45,3 +45,9 @@ next-env.d.ts
 
 .vercel
 .worktrees/
+.claude/
+.playwright-mcp/
+.superpowers/
+*.png
+*.jpeg
+*.jpg

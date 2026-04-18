@@ -1,6 +1,0 @@
-[     793ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://precio-gasolineras-murex.vercel.app/api/favorites:0
-[     800ms] SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
-    at https://precio-gasolineras-murex.vercel.app/_next/static/chunks/17s2jup9br7dp.js:1:388039
-[     916ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://precio-gasolineras-murex.vercel.app/api/stations?lat=40.4168&lng=-3.7038&radius=10&fuel=g95:0
-[     918ms] SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
-    at https://precio-gasolineras-murex.vercel.app/_next/static/chunks/17s2jup9br7dp.js:1:388236
