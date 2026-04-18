@@ -7,14 +7,14 @@ import StationList from '@/components/StationList';
 import StationDetail from '@/components/StationDetail';
 import { RecenterButton } from '@/components/RecenterButton';
 import { PriceLegend } from '@/components/PriceLegend';
-import type { StationWithPrice } from '@/lib/types';
+import type { StationWithPrice, FuelType } from '@/lib/types';
 import type { LatLngBounds } from 'leaflet';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 export default function Home() {
   const [radius, setRadius] = useState(10);
-  const [fuel, setFuel] = useState<'g95' | 'diesel'>('g95');
+  const [fuel, setFuel] = useState<FuelType>('g95');
   const [stations, setStations] = useState<StationWithPrice[]>([]);
   const [selected, setSelected] = useState<StationWithPrice | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -69,6 +69,11 @@ export default function Home() {
     if (userLocation) setFlyToCenter([...userLocation]);
   };
 
+  const handleLocationFound = useCallback((lat: number, lng: number) => {
+    setFlyToCenter([lat, lng]);
+    setMapCenter([lat, lng]);
+  }, []);
+
   const toggleFavorite = async (stationId: string) => {
     if (favorites.includes(stationId)) {
       await fetch('/api/favorites', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stationId }) });
@@ -99,7 +104,7 @@ export default function Home() {
       <RecenterButton onClick={handleRecenter} />
 
       {/* TopBar — centered pill at top */}
-      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} />
+      <TopBar radius={radius} onRadiusChange={setRadius} fuel={fuel} onFuelChange={setFuel} onLocationFound={handleLocationFound} />
 
       {/* Price legend — centered below TopBar */}
       {visiblePrices.length > 0 && (

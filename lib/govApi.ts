@@ -26,6 +26,8 @@ export function parseGovResponse(data: any): {
     const lng = parseSpanishFloat(item['Longitud (WGS84)']);
     if (lat === null || lng === null) continue;
 
+    const ventaRestringida = item['Tipo Venta'] === 'R';
+
     stations.push({
       id,
       name: item['Rótulo'] ?? '',
@@ -35,13 +37,21 @@ export function parseGovResponse(data: any): {
       address: item['Dirección'] ?? '',
       province: item['Provincia'] ?? '',
       municipality: item['Municipio'] ?? '',
+      ventaRestringida,
     });
 
-    const g95 = parseSpanishFloat(item['Precio Gasolina 95 E5']);
-    if (g95 !== null) prices.push({ stationId: id, fuel: 'g95', price: g95 });
+    const fuelFields: Array<[FuelType, string]> = [
+      ['g95',    'Precio Gasolina 95 E5'],
+      ['diesel', 'Precio Gasoleo A'],
+      ['g98',    'Precio Gasolina 98 E5'],
+      ['glp',    'Precio Gases licuados del petróleo'],
+      ['gnc',    'Precio Gas Natural Comprimido'],
+    ];
 
-    const diesel = parseSpanishFloat(item['Precio Gasoleo A']);
-    if (diesel !== null) prices.push({ stationId: id, fuel: 'diesel', price: diesel });
+    for (const [fuel, field] of fuelFields) {
+      const price = parseSpanishFloat(item[field]);
+      if (price !== null) prices.push({ stationId: id, fuel, price });
+    }
   }
 
   return { stations, prices };

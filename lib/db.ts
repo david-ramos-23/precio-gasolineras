@@ -27,19 +27,32 @@ export async function bulkUpsertStations(stations: Station[]): Promise<void> {
   const addresses = stations.map(s => s.address);
   const provinces = stations.map(s => s.province);
   const municipalities = stations.map(s => s.municipality);
+  const ventaRestringidas = stations.map(s => s.ventaRestringida);
 
   await sql`
-    INSERT INTO stations (id, name, brand, lat, lng, address, province, municipality)
+    INSERT INTO stations (id, name, brand, lat, lng, address, province, municipality, venta_restringida, updated_at)
     SELECT * FROM unnest(
-      ${ids}::text[], ${names}::text[], ${brands}::text[],
-      ${lats}::float8[], ${lngs}::float8[],
-      ${addresses}::text[], ${provinces}::text[], ${municipalities}::text[]
-    ) AS t(id, name, brand, lat, lng, address, province, municipality)
+      ${ids}::text[],
+      ${names}::text[],
+      ${brands}::text[],
+      ${lats}::float[],
+      ${lngs}::float[],
+      ${addresses}::text[],
+      ${provinces}::text[],
+      ${municipalities}::text[],
+      ${ventaRestringidas}::boolean[],
+      ${stations.map(() => new Date().toISOString())}::timestamptz[]
+    ) AS t(id, name, brand, lat, lng, address, province, municipality, venta_restringida, updated_at)
     ON CONFLICT (id) DO UPDATE SET
-      name = EXCLUDED.name, brand = EXCLUDED.brand,
-      lat = EXCLUDED.lat, lng = EXCLUDED.lng,
-      address = EXCLUDED.address, province = EXCLUDED.province,
-      municipality = EXCLUDED.municipality, updated_at = now()
+      name = EXCLUDED.name,
+      brand = EXCLUDED.brand,
+      lat = EXCLUDED.lat,
+      lng = EXCLUDED.lng,
+      address = EXCLUDED.address,
+      province = EXCLUDED.province,
+      municipality = EXCLUDED.municipality,
+      venta_restringida = EXCLUDED.venta_restringida,
+      updated_at = EXCLUDED.updated_at
   `;
 }
 
@@ -66,6 +79,7 @@ export async function getStationsInBounds(
   const rows = await sql`
     SELECT
       s.id, s.name, s.brand, s.lat, s.lng, s.address, s.province, s.municipality,
+      s.venta_restringida AS venta_restringida,
       latest.price::float AS current_price,
       latest.captured_at AS updated_at,
       prev.price::float AS prev_price
@@ -87,6 +101,7 @@ export async function getStationsInBounds(
     id: r.id, name: r.name, brand: r.brand,
     lat: r.lat, lng: r.lng, address: r.address,
     province: r.province, municipality: r.municipality,
+    ventaRestringida: r.venta_restringida ?? false,
     currentPrice: r.current_price, prevPrice: r.prev_price,
     updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : null,
   }));
