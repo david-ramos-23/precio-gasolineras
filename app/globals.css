@@ -72,6 +72,6 @@ input[type='range'] { accent-color: #22c55e; }
   display: none !important;
 }
 
-/* Bottom sheet fully expanded — TopBar stays visible but non-interactive (sheet handle stays accessible) */
-.panel-expanded [data-topbar],
+/* Bottom sheet fully expanded — sheet covers TopBar area, TopBar drops below sheet z-index */
+.panel-expanded [data-topbar] { pointer-events: none; z-index: 800; }
 .panel-expanded [data-topbar] * { pointer-events: none; }

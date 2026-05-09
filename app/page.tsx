@@ -10,6 +10,9 @@ import { PriceLegend } from '@/components/PriceLegend';
 import type { StationWithPrice, FuelType } from '@/lib/types';
 import { useSession, signIn } from 'next-auth/react';
 
+const SNAP_PEEK = 28;
+const SNAP_MID = 55;
+
 const LOCAL_FAV_KEY = 'gasolineras_favorites';
 function loadLocalFavs(): string[] {
   if (typeof window === 'undefined') return [];
@@ -98,10 +101,9 @@ export default function Home() {
   // Set initial height synchronously before browser paint (prevents flash)
   useLayoutEffect(() => {
     if (showList && sheetRef.current) {
-      const initPct = selected ? 58 : 65; // eslint-disable-line react-hooks/exhaustive-deps
-      sheetRef.current.style.height = `${initPct}%`;
+      sheetRef.current.style.height = `${SNAP_MID}%`;
       sheetRef.current.style.transition = 'none';
-      setPanelBottom(initPct);
+      setPanelBottom(SNAP_MID);
     }
   }, [showList]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -114,7 +116,7 @@ export default function Home() {
   // Drive height via DOM when selected/detailExpanded changes (avoids React re-render conflicts)
   useLayoutEffect(() => {
     if (!showList || !sheetRef.current || dragging.current) return;
-    const pct = selected ? (detailExpanded ? getMaxPct() : 58) : 65;
+    const pct = detailExpanded ? getMaxPct() : SNAP_MID;
     sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
     sheetRef.current.style.height = `${pct}%`;
     setPanelBottom(pct);
@@ -127,6 +129,9 @@ export default function Home() {
   const dragBaseH = useRef(0);
   const dragging = useRef(false);
   const dragMoved = useRef(false);
+  const lastTouchY = useRef(0);
+  const lastTouchTime = useRef(0);
+  const dragVelocity = useRef(0); // px/ms, positive = downward (closing)
 
   // Attach passive touchmove on drag zone only
   useEffect(() => {
@@ -140,9 +145,16 @@ export default function Home() {
       if (!dragMoved.current) {
         dragMoved.current = true;
         sheetRef.current.style.transition = 'none';
+        lastTouchY.current = e.touches[0].clientY;
+        lastTouchTime.current = Date.now();
       }
       e.preventDefault();
-      const pct = Math.max(15, Math.min(100, dragBaseH.current + (delta / window.innerHeight) * 100));
+      const now = Date.now();
+      const dt = now - lastTouchTime.current;
+      if (dt > 0) dragVelocity.current = (e.touches[0].clientY - lastTouchY.current) / dt;
+      lastTouchY.current = e.touches[0].clientY;
+      lastTouchTime.current = now;
+      const pct = Math.max(8, Math.min(100, dragBaseH.current + (delta / window.innerHeight) * 100));
       sheetRef.current.style.height = `${pct}%`;
       setPanelBottom(pct);
     };
@@ -154,8 +166,11 @@ export default function Home() {
     dragging.current = true;
     dragMoved.current = false;
     dragStartY.current = e.touches[0].clientY;
+    lastTouchY.current = e.touches[0].clientY;
+    lastTouchTime.current = Date.now();
+    dragVelocity.current = 0;
     const h = sheetRef.current ? parseFloat(sheetRef.current.style.height) : NaN;
-    dragBaseH.current = isNaN(h) ? (selected ? (detailExpanded ? getMaxPct() : 58) : 65) : h;
+    dragBaseH.current = isNaN(h) ? (detailExpanded ? getMaxPct() : SNAP_MID) : h;
     rootRef.current?.style.setProperty('--zoom-td', '0s');
   }
 
@@ -198,24 +213,49 @@ export default function Home() {
     } else { setSelected(null); }
   }
 
+  function getSnapPoint(h: number, vel: number): 'close' | 'peek' | 'mid' | 'full' {
+    if (Math.abs(vel) > 0.4) { // fast swipe: follow direction
+      if (vel > 0) { // swiping down
+        if (h > 70) return 'mid';
+        if (h > 38) return 'peek';
+        return 'close';
+      } else { // swiping up
+        if (h < 38) return 'mid';
+        return 'full';
+      }
+    }
+    // Slow drag: snap to nearest point
+    if (h < 14) return 'close';
+    const opts: Array<{ snap: 'peek' | 'mid' | 'full'; d: number }> = [
+      { snap: 'peek', d: Math.abs(h - SNAP_PEEK) },
+      { snap: 'mid',  d: Math.abs(h - SNAP_MID) },
+      { snap: 'full', d: Math.abs(h - getMaxPct()) },
+    ];
+    return opts.sort((a, b) => a.d - b.d)[0].snap;
+  }
+
+  function applySnap(snap: 'close' | 'peek' | 'mid' | 'full') {
+    if (snap === 'close') { closeSheet(); return; }
+    if (!sheetRef.current) return;
+    const pct = snap === 'full' ? getMaxPct() : snap === 'mid' ? SNAP_MID : SNAP_PEEK;
+    sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+    sheetRef.current.style.height = `${pct}%`;
+    setPanelBottom(pct);
+    if (snap === 'full') {
+      rootRef.current?.classList.add('panel-expanded');
+      setDetailExpanded(true);
+    } else {
+      rootRef.current?.classList.remove('panel-expanded');
+    }
+  }
+
   function onDragEnd() {
     if (!dragging.current) return;
     dragging.current = false;
     rootRef.current?.style.removeProperty('--zoom-td');
     if (!dragMoved.current || !sheetRef.current) return;
-    // Check h BEFORE setting transition — prevents CSS transition race with closeSheet GSAP
     const h = parseFloat(sheetRef.current.style.height);
-    if (h < 30) {
-      closeSheet();
-    } else {
-      // Any release above 30% → snap to max (aligned with TopBar top)
-      const maxPct = getMaxPct();
-      sheetRef.current.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
-      setDetailExpanded(true);
-      sheetRef.current.style.height = `${maxPct}%`;
-      setPanelBottom(maxPct);
-      rootRef.current?.classList.add('panel-expanded');
-    }
+    applySnap(getSnapPoint(h, dragVelocity.current));
   }
 
   const handleLocationFound = useCallback((lat: number, lng: number) => {
