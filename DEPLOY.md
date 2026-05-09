@@ -64,7 +64,7 @@ Configurar en https://console.cron-job.org/:
 
 | Campo | Valor |
 |---|---|
-| URL | `https://<TU_DOMINIO>/api/ingest` |
+| URL | `https://precio-gasolineras-murex.vercel.app/api/ingest` |
 | Método | `POST` |
 | Header | `x-ingest-secret: <INGEST_SECRET>` |
 | Schedule | Cada 30 minutos (`*/30 * * * *`) |
@@ -82,8 +82,8 @@ Usar `?force=1` para forzar el ingest ignorando la deduplicación.
 
 En Google Cloud Console → APIs → OAuth 2.0:
 
-- **Authorized JavaScript origins**: `https://<TU_DOMINIO>`
-- **Authorized redirect URIs**: `https://<TU_DOMINIO>/api/auth/callback/google`
+- **Authorized JavaScript origins**: `https://precio-gasolineras-murex.vercel.app`
+- **Authorized redirect URIs**: `https://precio-gasolineras-murex.vercel.app/api/auth/callback/google`
 
 ## Deploy
 
@@ -94,6 +94,6 @@ git push origin master  # Vercel auto-deploys on push to master
 Para forzar un ingest manual tras deploy:
 
 ```bash
-curl -X POST https://<TU_DOMINIO>/api/ingest \
+curl -X POST https://precio-gasolineras-murex.vercel.app/api/ingest \
   -H "x-ingest-secret: <INGEST_SECRET>"
 ```
