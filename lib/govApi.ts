@@ -60,9 +60,10 @@ export function parseGovResponse(data: any): {
 export async function fetchGovData(): Promise<{
   stations: Station[];
   prices: Array<{ stationId: string; fuel: FuelType; price: number }>;
+  fecha: string | null;
 }> {
   const res = await fetch(GOV_API_URL, { next: { revalidate: 0 } } as RequestInit);
   if (!res.ok) throw new Error(`Gov API error: ${res.status}`);
   const data = await res.json();
-  return parseGovResponse(data);
+  return { ...parseGovResponse(data), fecha: (data.Fecha as string) ?? null };
 }

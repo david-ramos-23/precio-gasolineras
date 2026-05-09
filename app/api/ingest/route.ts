@@ -1,7 +1,7 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha } from '@/lib/db';
 import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
@@ -17,9 +17,17 @@ export function verifyIngestSecret(header: string): boolean {
 
 const CHUNK_SIZE = 500;
 
-async function runIngest(isSummary: boolean): Promise<NextResponse> {
+async function runIngest(isSummary: boolean, force = false): Promise<NextResponse> {
   try {
-    const { stations, prices } = await fetchGovData();
+    const { stations, prices, fecha } = await fetchGovData();
+
+    // Skip if government API hasn't published new data since last ingest
+    if (fecha && !force) {
+      const lastFecha = await getLastIngestFecha();
+      if (lastFecha === fecha) {
+        return NextResponse.json({ ok: true, skipped: true, fecha });
+      }
+    }
 
     for (let i = 0; i < stations.length; i += CHUNK_SIZE) {
       await bulkUpsertStations(stations.slice(i, i + CHUNK_SIZE));
@@ -61,7 +69,8 @@ async function runIngest(isSummary: boolean): Promise<NextResponse> {
 
     await sendTelegramMessage(insightText);
 
-    return NextResponse.json({ ok: true, stationsProcessed: stations.length, snapshotsInserted: snapshots.length });
+    if (fecha) await setLastIngestFecha(fecha);
+    return NextResponse.json({ ok: true, stationsProcessed: stations.length, snapshotsInserted: snapshots.length, fecha });
   } catch (err) {
     console.error('[ingest] error:', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
@@ -77,7 +86,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const isSummary = req.nextUrl.searchParams.get('summary') === '1';
-  return runIngest(isSummary);
+  const force = req.nextUrl.searchParams.get('force') === '1';
+  return runIngest(isSummary, force);
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -86,5 +96,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const isSummary = req.nextUrl.searchParams.get('summary') === '1';
-  return runIngest(isSummary);
+  const force = req.nextUrl.searchParams.get('force') === '1';
+  return runIngest(isSummary, force);
 }

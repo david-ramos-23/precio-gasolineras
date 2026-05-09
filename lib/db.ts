@@ -180,6 +180,22 @@ export async function getPreviousAverages(stationIds?: string[]): Promise<{ avgG
 }
 
 
+export async function getLastIngestFecha(): Promise<string | null> {
+  try {
+    const rows = await sql`SELECT value FROM app_settings WHERE key = 'last_ingest_fecha'`;
+    return rows[0]?.value ?? null;
+  } catch {
+    return null; // table not yet created
+  }
+}
+
+export async function setLastIngestFecha(fecha: string): Promise<void> {
+  await sql`
+    INSERT INTO app_settings (key, value) VALUES ('last_ingest_fecha', ${fecha})
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+  `;
+}
+
 export async function getFavoritesWithCurrentPrice(fuel: FuelType): Promise<
   Array<{ stationId: string; label: string; name: string; price: number | null; prevPrice: number | null }>
 > {

@@ -28,3 +28,9 @@ CREATE TABLE IF NOT EXISTS favorites (
   label      TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (user_id, station_id)
 );
+
+CREATE TABLE IF NOT EXISTS app_settings (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
