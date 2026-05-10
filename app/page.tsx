@@ -96,6 +96,17 @@ export default function Home() {
     if (userLocation) setFlyToCenter([...userLocation]);
   };
 
+  const isAdmin = session?.user?.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? 'andara14@gmail.com');
+  const handleSaveLocation = useCallback(async () => {
+    if (!userLocation) return;
+    const [lat, lng] = userLocation;
+    await fetch('/api/admin/location', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat, lng, radiusKm: 10 }),
+    });
+  }, [userLocation]);
+
   useEffect(() => { setDetailExpanded(false); }, [selected?.id]);
 
   // Set initial height synchronously before browser paint (prevents flash)
@@ -299,6 +310,7 @@ export default function Home() {
           flyToCenter={flyToCenter}
           sheetFraction={selected ? 0.58 : 0}
           onRecenter={handleRecenter}
+          onSaveLocation={isAdmin && userLocation ? handleSaveLocation : undefined}
         />
       </div>
 

@@ -196,6 +196,21 @@ export async function setLastIngestFecha(fecha: string): Promise<void> {
   `;
 }
 
+export async function setAdminLocation(lat: number, lng: number, radiusKm: number): Promise<void> {
+  await sql`
+    INSERT INTO app_settings (key, value) VALUES ('admin_lat', ${String(lat)})
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+  `;
+  await sql`
+    INSERT INTO app_settings (key, value) VALUES ('admin_lng', ${String(lng)})
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+  `;
+  await sql`
+    INSERT INTO app_settings (key, value) VALUES ('admin_radius_km', ${String(radiusKm)})
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+  `;
+}
+
 export async function getAdminLocation(): Promise<{ lat: number; lng: number; radiusKm: number } | null> {
   try {
     const rows = await sql`
