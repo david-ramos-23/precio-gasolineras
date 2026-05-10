@@ -1,7 +1,7 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, getAdminLocation } from '@/lib/db';
 import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
@@ -38,7 +38,7 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
       await bulkInsertSnapshots(snapshots.slice(i, i + CHUNK_SIZE));
     }
 
-    const home = getHomeConfig();
+    const home = await getAdminLocation() ?? getHomeConfig();
     const scopedStations = home
       ? stations.filter(s =>
           s.lat != null && s.lng != null &&

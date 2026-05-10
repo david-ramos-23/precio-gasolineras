@@ -196,6 +196,20 @@ export async function setLastIngestFecha(fecha: string): Promise<void> {
   `;
 }
 
+export async function getAdminLocation(): Promise<{ lat: number; lng: number; radiusKm: number } | null> {
+  try {
+    const rows = await sql`
+      SELECT key, value FROM app_settings
+      WHERE key IN ('admin_lat', 'admin_lng', 'admin_radius_km')
+    `;
+    const map = Object.fromEntries(rows.map(r => [r.key, Number(r.value)]));
+    if (!Number.isFinite(map.admin_lat) || !Number.isFinite(map.admin_lng)) return null;
+    return { lat: map.admin_lat, lng: map.admin_lng, radiusKm: map.admin_radius_km || 30 };
+  } catch {
+    return null;
+  }
+}
+
 export async function getFavoritesWithCurrentPrice(fuel: FuelType): Promise<
   Array<{ stationId: string; label: string; name: string; price: number | null; prevPrice: number | null }>
 > {
