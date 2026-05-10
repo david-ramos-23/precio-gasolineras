@@ -61,13 +61,16 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
       .filter(f => f.price != null)
       .map(f => ({ label: f.label, price: f.price!, prevPrice: f.prevPrice }));
 
-    const insightText = await generateInsight({
-      avgG95: avgG95Now, avgG95Prev,
-      avgDiesel: avgDieselNow, avgDieselPrev,
-      province, favoriteChanges, isSummary,
-    });
+    console.log('[ingest] prices scope:', { scopedCount: scopedIds.length, avgG95Now, avgDieselNow });
 
-    await sendTelegramMessage(insightText);
+    if (avgG95Now !== null || avgDieselNow !== null) {
+      const insightText = await generateInsight({
+        avgG95: avgG95Now, avgG95Prev,
+        avgDiesel: avgDieselNow, avgDieselPrev,
+        province, favoriteChanges, isSummary,
+      });
+      await sendTelegramMessage(insightText);
+    }
 
     if (fecha) await setLastIngestFecha(fecha);
     return NextResponse.json({ ok: true, stationsProcessed: stations.length, snapshotsInserted: snapshots.length, fecha });
