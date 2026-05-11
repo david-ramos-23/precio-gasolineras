@@ -63,11 +63,30 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
 
     console.log('[ingest] prices scope:', { scopedCount: scopedIds.length, avgG95Now, avgDieselNow });
 
-    if (avgG95Now !== null || avgDieselNow !== null) {
+    const ALERT_THRESHOLD_EUR = 0.100; // minimum price change (€) to trigger Telegram notification
+    const g95Delta = avgG95Now !== null && avgG95Prev !== null ? Math.abs(avgG95Now - avgG95Prev) : null;
+    const dieselDelta = avgDieselNow !== null && avgDieselPrev !== null ? Math.abs(avgDieselNow - avgDieselPrev) : null;
+    const priceMovedEnough = (g95Delta !== null && g95Delta >= ALERT_THRESHOLD_EUR)
+      || (dieselDelta !== null && dieselDelta >= ALERT_THRESHOLD_EUR);
+    const firstRun = (avgG95Prev === null && avgG95Now !== null) || (avgDieselPrev === null && avgDieselNow !== null);
+    const shouldNotify = isSummary || firstRun || priceMovedEnough;
+
+    console.log('[ingest] alert check:', { g95Delta, dieselDelta, shouldNotify, isSummary });
+
+    if (shouldNotify && (avgG95Now !== null || avgDieselNow !== null)) {
+      const stationMap = new Map(scopedStations.map(s => [s.id, s.name]));
+      const scopedG95 = prices.filter(p => p.fuel === 'g95' && scopedIdsSet.has(p.stationId));
+      const scopedDiesel = prices.filter(p => p.fuel === 'diesel' && scopedIdsSet.has(p.stationId));
+      const cheapestG95Entry = scopedG95.length > 0 ? scopedG95.reduce((min, p) => p.price < min.price ? p : min) : null;
+      const cheapestDieselEntry = scopedDiesel.length > 0 ? scopedDiesel.reduce((min, p) => p.price < min.price ? p : min) : null;
+      const cheapestG95 = cheapestG95Entry ? { name: stationMap.get(cheapestG95Entry.stationId) ?? 'Desconocida', price: cheapestG95Entry.price } : null;
+      const cheapestDiesel = cheapestDieselEntry ? { name: stationMap.get(cheapestDieselEntry.stationId) ?? 'Desconocida', price: cheapestDieselEntry.price } : null;
+
       const insightText = await generateInsight({
         avgG95: avgG95Now, avgG95Prev,
         avgDiesel: avgDieselNow, avgDieselPrev,
         province, favoriteChanges, isSummary,
+        cheapestG95, cheapestDiesel,
       });
       await sendTelegramMessage(insightText);
     }

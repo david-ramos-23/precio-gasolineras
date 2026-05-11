@@ -6,6 +6,8 @@ export interface InsightInput {
   province: string;
   favoriteChanges: Array<{ label: string; price: number; prevPrice: number | null }>;
   isSummary: boolean;
+  cheapestG95?: { name: string; price: number } | null;
+  cheapestDiesel?: { name: string; price: number } | null;
 }
 
 export function buildInsightPrompt(input: InsightInput): string {
@@ -22,16 +24,22 @@ export function buildInsightPrompt(input: InsightInput): string {
     return `- ${f.label}: ${f.price.toFixed(3)}€ (${delta} céntimos)`;
   }).join('\n');
 
+  const cheapestLines = [
+    input.cheapestG95 ? `- Más barata G95: ${input.cheapestG95.name} → ${input.cheapestG95.price.toFixed(3)}€` : null,
+    input.cheapestDiesel ? `- Más barata Diésel: ${input.cheapestDiesel.name} → ${input.cheapestDiesel.price.toFixed(3)}€` : null,
+  ].filter(Boolean).join('\n');
+
   return `Eres un asistente que informa sobre precios de combustible en España de forma concisa y útil.
 
 Datos actuales en ${input.province}:
 - Gasolina 95: ${input.avgG95?.toFixed(3) ?? 'N/A'}€ (cambio: ${g95Delta})
 - Gasoil A: ${input.avgDiesel?.toFixed(3) ?? 'N/A'}€ (cambio: ${dieselDelta})
+${cheapestLines ? `\nGasolinera más barata del área:\n${cheapestLines}` : ''}
 ${favLines ? `\nGasolineras favoritas:\n${favLines}` : ''}
 
 Genera un mensaje de Telegram breve (máx 3 párrafos) en español con:
 1. Resumen del cambio de precio (usa emojis 🟢⬇️ o 🔴⬆️ según corresponda)
-2. Situación de las favoritas (si las hay)
+2. La gasolinera más barata del área (si está disponible), mencionando su nombre y precio exacto
 3. Un consejo práctico (¿merece la pena llenar ahora o esperar?)
 
 Sé directo y útil. No incluyas saludos ni despedidas formales.`;
