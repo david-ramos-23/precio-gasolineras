@@ -1,7 +1,7 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, logIngestRun, markAlertSent, getAdminLocation } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, logIngestRun, markAlertSent, getAdminLocation, getPreviousCheapestPrices, setPreviousCheapestPrices } from '@/lib/db';
 import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
@@ -61,19 +61,29 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
     const avgG95Now = mean(scopedG95Prices);
     const avgDieselNow = mean(scopedDieselPrices);
 
+    const stationMap = new Map(scopedStations.map(s => [s.id, s.name]));
+    const scopedG95 = prices.filter(p => p.fuel === 'g95' && scopedIdsSet.has(p.stationId));
+    const scopedDiesel = prices.filter(p => p.fuel === 'diesel' && scopedIdsSet.has(p.stationId));
+    const cheapestG95Entry = scopedG95.length > 0 ? scopedG95.reduce((min, p) => p.price < min.price ? p : min) : null;
+    const cheapestDieselEntry = scopedDiesel.length > 0 ? scopedDiesel.reduce((min, p) => p.price < min.price ? p : min) : null;
+    const cheapestG95 = cheapestG95Entry ? { name: stationMap.get(cheapestG95Entry.stationId) ?? 'Desconocida', price: cheapestG95Entry.price } : null;
+    const cheapestDiesel = cheapestDieselEntry ? { name: stationMap.get(cheapestDieselEntry.stationId) ?? 'Desconocida', price: cheapestDieselEntry.price } : null;
+
+    const { g95: prevCheapestG95, diesel: prevCheapestDiesel } = await getPreviousCheapestPrices();
+
     const favorites = await getFavoritesWithCurrentPrice('g95');
     const favoriteChanges = favorites
       .filter(f => f.price != null)
       .map(f => ({ label: f.label, price: f.price!, prevPrice: f.prevPrice }));
 
-    console.log('[ingest] prices scope:', { scopedCount: scopedIds.length, avgG95Now, avgDieselNow });
+    console.log('[ingest] prices scope:', { scopedCount: scopedIds.length, avgG95Now, avgDieselNow, cheapestG95: cheapestG95?.price, cheapestDiesel: cheapestDiesel?.price });
 
-    const ALERT_THRESHOLD_EUR = 0.100; // minimum price change (€) to trigger Telegram notification
-    const g95Delta = avgG95Now !== null && avgG95Prev !== null ? Math.abs(avgG95Now - avgG95Prev) : null;
-    const dieselDelta = avgDieselNow !== null && avgDieselPrev !== null ? Math.abs(avgDieselNow - avgDieselPrev) : null;
+    const ALERT_THRESHOLD_EUR = 0.100; // minimum cheapest-station price change (€) to trigger Telegram notification
+    const g95Delta = cheapestG95 !== null && prevCheapestG95 !== null ? Math.abs(cheapestG95.price - prevCheapestG95) : null;
+    const dieselDelta = cheapestDiesel !== null && prevCheapestDiesel !== null ? Math.abs(cheapestDiesel.price - prevCheapestDiesel) : null;
     const priceMovedEnough = (g95Delta !== null && g95Delta >= ALERT_THRESHOLD_EUR)
       || (dieselDelta !== null && dieselDelta >= ALERT_THRESHOLD_EUR);
-    const firstRun = (avgG95Prev === null && avgG95Now !== null) || (avgDieselPrev === null && avgDieselNow !== null);
+    const firstRun = (prevCheapestG95 === null && cheapestG95 !== null) || (prevCheapestDiesel === null && cheapestDiesel !== null);
     const shouldNotify = isSummary || firstRun || priceMovedEnough;
 
     console.log('[ingest] alert check:', { g95Delta, dieselDelta, shouldNotify, isSummary });
@@ -88,14 +98,6 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
     });
 
     if (shouldNotify && (avgG95Now !== null || avgDieselNow !== null)) {
-      const stationMap = new Map(scopedStations.map(s => [s.id, s.name]));
-      const scopedG95 = prices.filter(p => p.fuel === 'g95' && scopedIdsSet.has(p.stationId));
-      const scopedDiesel = prices.filter(p => p.fuel === 'diesel' && scopedIdsSet.has(p.stationId));
-      const cheapestG95Entry = scopedG95.length > 0 ? scopedG95.reduce((min, p) => p.price < min.price ? p : min) : null;
-      const cheapestDieselEntry = scopedDiesel.length > 0 ? scopedDiesel.reduce((min, p) => p.price < min.price ? p : min) : null;
-      const cheapestG95 = cheapestG95Entry ? { name: stationMap.get(cheapestG95Entry.stationId) ?? 'Desconocida', price: cheapestG95Entry.price } : null;
-      const cheapestDiesel = cheapestDieselEntry ? { name: stationMap.get(cheapestDieselEntry.stationId) ?? 'Desconocida', price: cheapestDieselEntry.price } : null;
-
       try {
         const insightText = await generateInsight({
           avgG95: avgG95Now, avgG95Prev,
@@ -110,6 +112,8 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
         if (logId) await markAlertSent(logId, String(alertErr));
       }
     }
+
+    await setPreviousCheapestPrices(cheapestG95?.price ?? null, cheapestDiesel?.price ?? null);
 
     return NextResponse.json({ ok: true, stationsProcessed: stations.length, snapshotsInserted: snapshots.length, fecha });
   } catch (err) {
