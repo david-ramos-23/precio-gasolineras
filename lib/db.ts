@@ -198,11 +198,15 @@ export async function setLastIngestFecha(fecha: string): Promise<void> {
 }
 
 export async function setLastCheckedAt(): Promise<void> {
-  const now = new Date().toISOString();
-  await sql`
-    INSERT INTO app_settings (key, value) VALUES ('last_checked_at', ${now})
-    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
-  `;
+  try {
+    const now = new Date().toISOString();
+    await sql`
+      INSERT INTO app_settings (key, value) VALUES ('last_checked_at', ${now})
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+    `;
+  } catch {
+    // non-critical — don't abort ingest if tracking fails
+  }
 }
 
 export async function getLastCheckedAt(): Promise<string | null> {

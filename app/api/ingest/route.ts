@@ -30,6 +30,10 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
       }
     }
 
+    // Mark fecha as processed before heavy work — prevents re-processing if
+    // the connection is cut at the 30s cron-job.org timeout
+    if (fecha) await setLastIngestFecha(fecha);
+
     for (let i = 0; i < stations.length; i += CHUNK_SIZE) {
       await bulkUpsertStations(stations.slice(i, i + CHUNK_SIZE));
     }
@@ -92,7 +96,6 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
       await sendTelegramMessage(insightText);
     }
 
-    if (fecha) await setLastIngestFecha(fecha);
     return NextResponse.json({ ok: true, stationsProcessed: stations.length, snapshotsInserted: snapshots.length, fecha });
   } catch (err) {
     console.error('[ingest] error:', err);
