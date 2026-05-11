@@ -264,6 +264,26 @@ export async function markAlertSent(logId: number, error?: string): Promise<void
   }
 }
 
+export async function getPreviousCheapestPrices(): Promise<{ g95: number | null; diesel: number | null }> {
+  try {
+    const rows = await sql`SELECT key, value FROM app_settings WHERE key IN ('prev_cheapest_g95', 'prev_cheapest_diesel')`;
+    const map = Object.fromEntries(rows.map(r => [r.key, Number(r.value)]));
+    return {
+      g95: Number.isFinite(map.prev_cheapest_g95) ? map.prev_cheapest_g95 : null,
+      diesel: Number.isFinite(map.prev_cheapest_diesel) ? map.prev_cheapest_diesel : null,
+    };
+  } catch {
+    return { g95: null, diesel: null };
+  }
+}
+
+export async function setPreviousCheapestPrices(g95: number | null, diesel: number | null): Promise<void> {
+  try {
+    if (g95 !== null) await sql`INSERT INTO app_settings (key, value) VALUES ('prev_cheapest_g95', ${String(g95)}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`;
+    if (diesel !== null) await sql`INSERT INTO app_settings (key, value) VALUES ('prev_cheapest_diesel', ${String(diesel)}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`;
+  } catch { /* non-critical */ }
+}
+
 export async function setAdminLocation(lat: number, lng: number, radiusKm: number): Promise<void> {
   await sql`
     INSERT INTO app_settings (key, value) VALUES ('admin_lat', ${String(lat)})
