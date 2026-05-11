@@ -111,12 +111,13 @@ export async function getStationHistory(
   stationId: string, fuel: FuelType, days: number
 ): Promise<Array<{ price: number; capturedAt: string }>> {
   const rows = await sql`
-    SELECT price::float, captured_at
+    SELECT DISTINCT ON (DATE(captured_at AT TIME ZONE 'Europe/Madrid'))
+      price::float, captured_at
     FROM price_snapshots
     WHERE station_id = ${stationId}
       AND fuel_type = ${fuel}
       AND captured_at >= now() - (${days} || ' days')::interval
-    ORDER BY captured_at ASC
+    ORDER BY DATE(captured_at AT TIME ZONE 'Europe/Madrid'), captured_at DESC
   `;
   return rows.map(r => ({ price: r.price, capturedAt: r.captured_at }));
 }
