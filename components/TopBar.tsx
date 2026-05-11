@@ -47,7 +47,7 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
       } catch { /* ignore */ }
     }
     check();
-    const id = setInterval(check, 60_000);
+    const id = setInterval(check, 300_000);
     return () => clearInterval(id);
   }, []);
 

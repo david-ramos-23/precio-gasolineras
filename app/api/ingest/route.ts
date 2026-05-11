@@ -1,7 +1,7 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, logIngestRun, markAlertSent, getAdminLocation, getPreviousCheapestPrices, setPreviousCheapestPrices } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, logIngestRun, markAlertSent, getAdminLocation, getPreviousCheapestPrices, setPreviousCheapestPrices, cleanupOldSnapshots } from '@/lib/db';
 import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
@@ -19,7 +19,6 @@ const CHUNK_SIZE = 500;
 
 async function runIngest(isSummary: boolean, force = false): Promise<NextResponse> {
   try {
-    await setLastCheckedAt();
     const { stations, prices, fecha } = await fetchGovData();
 
     // Skip if government API hasn't published new data since last ingest
@@ -29,6 +28,9 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
         return NextResponse.json({ ok: true, skipped: true, fecha });
       }
     }
+
+    // Only write to DB when we have new data — keeps Neon suspended between real ingests
+    await setLastCheckedAt();
 
     // Mark fecha as processed before heavy work — prevents re-processing if
     // the connection is cut at the 30s cron-job.org timeout
@@ -114,6 +116,8 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
     }
 
     await setPreviousCheapestPrices(cheapestG95?.price ?? null, cheapestDiesel?.price ?? null);
+
+    if (isSummary) await cleanupOldSnapshots();
 
     return NextResponse.json({ ok: true, stationsProcessed: stations.length, snapshotsInserted: snapshots.length, fecha });
   } catch (err) {

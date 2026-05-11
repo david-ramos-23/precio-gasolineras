@@ -264,6 +264,21 @@ export async function markAlertSent(logId: number, error?: string): Promise<void
   }
 }
 
+export async function cleanupOldSnapshots(): Promise<void> {
+  try {
+    await sql`
+      WITH ranked AS (
+        SELECT id, ROW_NUMBER() OVER (
+          PARTITION BY station_id, fuel_type, DATE(captured_at AT TIME ZONE 'Europe/Madrid')
+          ORDER BY captured_at DESC
+        ) AS rn
+        FROM price_snapshots
+      )
+      DELETE FROM price_snapshots WHERE id IN (SELECT id FROM ranked WHERE rn > 1)
+    `;
+  } catch { /* non-critical */ }
+}
+
 export async function getPreviousCheapestPrices(): Promise<{ g95: number | null; diesel: number | null }> {
   try {
     const rows = await sql`SELECT key, value FROM app_settings WHERE key IN ('prev_cheapest_g95', 'prev_cheapest_diesel')`;
