@@ -1,7 +1,7 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, getAdminLocation } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, getAdminLocation } from '@/lib/db';
 import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
@@ -19,6 +19,7 @@ const CHUNK_SIZE = 500;
 
 async function runIngest(isSummary: boolean, force = false): Promise<NextResponse> {
   try {
+    await setLastCheckedAt();
     const { stations, prices, fecha } = await fetchGovData();
 
     // Skip if government API hasn't published new data since last ingest

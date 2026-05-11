@@ -16,6 +16,13 @@ interface Props {
   legendMax?: number;
 }
 
+function relativeTime(iso: string): string {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60) return `${diff}s`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+  return `${Math.floor(diff / 3600)}h`;
+}
+
 const FUEL_LABELS: Record<FuelType, string> = {
   g95: 'G95', diesel: 'Gasoil', g98: 'G98', glp: 'GLP', gnc: 'GNC',
 };
@@ -29,6 +36,20 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
   const fuelRef = useRef<HTMLDivElement>(null);
   const radiusRef = useRef<HTMLDivElement>(null);
   const showLegend = legendCount > 0;
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function check() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        if (data.lastCheckedAt) setLastChecked(data.lastCheckedAt);
+      } catch { /* ignore */ }
+    }
+    check();
+    const id = setInterval(check, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     function onOut(e: MouseEvent) {
@@ -120,6 +141,11 @@ export default function TopBar({ radius, onRadiusChange, fuel, onFuelChange, onL
             )}
           </div>
 
+          {lastChecked && (
+            <span className="text-[10px] text-[var(--foreground)]/30 tabular-nums shrink-0" title="Última comprobación de precios">
+              {relativeTime(lastChecked)}
+            </span>
+          )}
           <AuthButton />
         </div>
 
