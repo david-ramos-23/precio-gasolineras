@@ -1,7 +1,7 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, getAdminLocation } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, logIngestRun, markAlertSent, getAdminLocation } from '@/lib/db';
 import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
@@ -78,6 +78,15 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
 
     console.log('[ingest] alert check:', { g95Delta, dieselDelta, shouldNotify, isSummary });
 
+    const logId = await logIngestRun({
+      fecha: fecha ?? null,
+      g95Delta: g95Delta ?? null,
+      dieselDelta: dieselDelta ?? null,
+      priceMoved: priceMovedEnough,
+      isSummary,
+      shouldNotify,
+    });
+
     if (shouldNotify && (avgG95Now !== null || avgDieselNow !== null)) {
       const stationMap = new Map(scopedStations.map(s => [s.id, s.name]));
       const scopedG95 = prices.filter(p => p.fuel === 'g95' && scopedIdsSet.has(p.stationId));
@@ -87,13 +96,19 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
       const cheapestG95 = cheapestG95Entry ? { name: stationMap.get(cheapestG95Entry.stationId) ?? 'Desconocida', price: cheapestG95Entry.price } : null;
       const cheapestDiesel = cheapestDieselEntry ? { name: stationMap.get(cheapestDieselEntry.stationId) ?? 'Desconocida', price: cheapestDieselEntry.price } : null;
 
-      const insightText = await generateInsight({
-        avgG95: avgG95Now, avgG95Prev,
-        avgDiesel: avgDieselNow, avgDieselPrev,
-        province, favoriteChanges, isSummary,
-        cheapestG95, cheapestDiesel,
-      });
-      await sendTelegramMessage(insightText);
+      try {
+        const insightText = await generateInsight({
+          avgG95: avgG95Now, avgG95Prev,
+          avgDiesel: avgDieselNow, avgDieselPrev,
+          province, favoriteChanges, isSummary,
+          cheapestG95, cheapestDiesel,
+        });
+        await sendTelegramMessage(insightText);
+        if (logId) await markAlertSent(logId);
+      } catch (alertErr) {
+        console.error('[ingest] alert send failed:', alertErr);
+        if (logId) await markAlertSent(logId, String(alertErr));
+      }
     }
 
     return NextResponse.json({ ok: true, stationsProcessed: stations.length, snapshotsInserted: snapshots.length, fecha });

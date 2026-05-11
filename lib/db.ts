@@ -218,6 +218,52 @@ export async function getLastCheckedAt(): Promise<string | null> {
   }
 }
 
+export async function logIngestRun(data: {
+  fecha: string | null;
+  g95Delta: number | null;
+  dieselDelta: number | null;
+  priceMoved: boolean;
+  isSummary: boolean;
+  shouldNotify: boolean;
+}): Promise<number | null> {
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS ingest_logs (
+        id SERIAL PRIMARY KEY,
+        created_at TIMESTAMPTZ DEFAULT now(),
+        fecha TEXT,
+        g95_delta DECIMAL(6,4),
+        diesel_delta DECIMAL(6,4),
+        price_moved BOOLEAN,
+        is_summary BOOLEAN,
+        should_notify BOOLEAN,
+        alert_sent BOOLEAN DEFAULT FALSE,
+        alert_error TEXT
+      )
+    `;
+    const rows = await sql`
+      INSERT INTO ingest_logs (fecha, g95_delta, diesel_delta, price_moved, is_summary, should_notify)
+      VALUES (${data.fecha}, ${data.g95Delta}, ${data.dieselDelta}, ${data.priceMoved}, ${data.isSummary}, ${data.shouldNotify})
+      RETURNING id
+    `;
+    return rows[0]?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function markAlertSent(logId: number, error?: string): Promise<void> {
+  try {
+    if (error) {
+      await sql`UPDATE ingest_logs SET alert_sent = FALSE, alert_error = ${error} WHERE id = ${logId}`;
+    } else {
+      await sql`UPDATE ingest_logs SET alert_sent = TRUE WHERE id = ${logId}`;
+    }
+  } catch {
+    // non-critical
+  }
+}
+
 export async function setAdminLocation(lat: number, lng: number, radiusKm: number): Promise<void> {
   await sql`
     INSERT INTO app_settings (key, value) VALUES ('admin_lat', ${String(lat)})
