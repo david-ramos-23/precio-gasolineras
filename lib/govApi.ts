@@ -62,7 +62,7 @@ export async function fetchGovData(): Promise<{
   prices: Array<{ stationId: string; fuel: FuelType; price: number }>;
   fecha: string | null;
 }> {
-  const res = await fetch(GOV_API_URL, { next: { revalidate: 0 } } as RequestInit);
+  const res = await fetch(GOV_API_URL, { next: { revalidate: 1800 } } as RequestInit);
   if (!res.ok) throw new Error(`Gov API error: ${res.status}`);
   const data = await res.json();
   return { ...parseGovResponse(data), fecha: (data.Fecha as string) ?? null };
