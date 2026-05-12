@@ -273,10 +273,13 @@ export async function cleanupOldSnapshots(): Promise<void> {
           ORDER BY captured_at DESC
         ) AS rn
         FROM price_snapshots
+        WHERE captured_at >= NOW() - INTERVAL '2 days'
       )
       DELETE FROM price_snapshots WHERE id IN (SELECT id FROM ranked WHERE rn > 1)
     `;
-  } catch { /* non-critical */ }
+  } catch (err) {
+    console.error('[cleanup] cleanupOldSnapshots failed:', err);
+  }
 }
 
 export async function getPreviousCheapestPrices(): Promise<{ g95: number | null; diesel: number | null }> {
