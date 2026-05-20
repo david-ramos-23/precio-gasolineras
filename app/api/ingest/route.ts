@@ -1,7 +1,7 @@
 // app/api/ingest/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGovData } from '@/lib/govApi';
-import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastIngestFecha, setLastIngestFecha, setLastCheckedAt, logIngestRun, markAlertSent, getAdminLocation, getPreviousCheapestPrices, setPreviousCheapestPrices, cleanupOldSnapshots } from '@/lib/db';
+import { bulkUpsertStations, bulkInsertSnapshots, getFavoritesWithCurrentPrice, getPreviousAverages, getLastCheckedAt, setLastCheckedAt, logIngestRun, markAlertSent, getAdminLocation, getPreviousCheapestPrices, setPreviousCheapestPrices, cleanupOldSnapshots } from '@/lib/db';
 import { mean, mode } from '@/lib/math';
 import { generateInsight } from '@/lib/insights';
 import { sendTelegramMessage } from '@/lib/telegram';
@@ -21,20 +21,20 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
   try {
     const { stations, prices, fecha } = await fetchGovData();
 
-    // Skip if government API hasn't published new data since last ingest
-    if (fecha && !force) {
-      const lastFecha = await getLastIngestFecha();
-      if (lastFecha === fecha) {
-        return NextResponse.json({ ok: true, skipped: true, fecha });
+    // Time-based dedup: skip if last successful ingest was < 25 min ago
+    if (!force) {
+      const lastCheckedAt = await getLastCheckedAt();
+      if (lastCheckedAt) {
+        const minutesSince = (Date.now() - new Date(lastCheckedAt).getTime()) / 60000;
+        if (minutesSince < 25) {
+          return NextResponse.json({ ok: true, skipped: true, lastCheckedAt });
+        }
       }
     }
 
-    // Only write to DB when we have new data — keeps Neon suspended between real ingests
-    await setLastCheckedAt();
-
-    // Mark fecha as processed before heavy work — prevents re-processing if
-    // the connection is cut at the 30s cron-job.org timeout
-    if (fecha) await setLastIngestFecha(fecha);
+    if (stations.length === 0) {
+      return NextResponse.json({ error: 'Gov API returned 0 stations — aborting ingest' }, { status: 502 });
+    }
 
     for (let i = 0; i < stations.length; i += CHUNK_SIZE) {
       await bulkUpsertStations(stations.slice(i, i + CHUNK_SIZE));
@@ -116,6 +116,7 @@ async function runIngest(isSummary: boolean, force = false): Promise<NextRespons
     }
 
     await setPreviousCheapestPrices(cheapestG95?.price ?? null, cheapestDiesel?.price ?? null);
+    await setLastCheckedAt();
 
     if (isSummary) await cleanupOldSnapshots();
 
